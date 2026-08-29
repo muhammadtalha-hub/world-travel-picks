@@ -1,0 +1,93 @@
+/* ==========================================================================
+   WORLD TRAVEL PICKS — GLOBAL DESIGN SYSTEM
+   This file is the single source of truth for colors, fonts, and spacing.
+   Every other file references these variables instead of hardcoding values.
+   ========================================================================== */
+
+/* --- Fonts (loaded from Google Fonts) --- */
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Inter:wght@400;500;600;700&family=Caveat:wght@500;600&display=swap');
+
+:root {
+  /* --- Colors --- */
+  --color-bg: #FAF7F2;              /* warm off-white page background */
+  --color-bg-dark: #14161A;         /* dark navy/charcoal — header, footer, hero overlay */
+  --color-text: #14161A;            /* primary text — near-black */
+  --color-text-muted: #6B6F76;      /* secondary text, metadata, captions */
+  --color-text-on-dark: #F5F2EC;    /* text sitting on dark backgrounds */
+
+  --color-button-bg: #14161A;       /* solid button background */
+  --color-button-text: #FFFFFF;     /* solid button text */
+
+  --color-accent: #F0E4D3;          /* warm beige/cream accent (tags, subtle highlights) */
+  --color-border: #E5E1D8;          /* thin subtle borders */
+
+  --color-surface: #FFFFFF;         /* card backgrounds */
+
+  /* --- Fonts --- */
+  --font-heading: 'Fraunces', Georgia, serif;
+  --font-body: 'Inter', -apple-system, sans-serif;
+  --font-accent: 'Caveat', cursive; /* rare, decorative use only */
+
+  /* --- Spacing scale (use these instead of random pixel values) --- */
+  --space-xs: 0.5rem;
+  --space-sm: 1rem;
+  --space-md: 1.5rem;
+  --space-lg: 2.5rem;
+  --space-xl: 4rem;
+  --space-2xl: 6rem;
+
+  /* --- Radius --- */
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+}
+
+/* --- Reset basics --- */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  line-height: 1.15;
+  margin: 0 0 var(--space-sm) 0;
+  color: var(--color-text);
+}
+
+p {
+  margin: 0 0 var(--space-sm) 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+/* --- Utility: visually-hidden (for accessibility labels) --- */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

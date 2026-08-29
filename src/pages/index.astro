@@ -1,17 +1,15 @@
 ---
-
+import BaseLayout from '../layouts/BaseLayout.astro';
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<BaseLayout title="World Travel Picks — Discover the World Differently">
+  <main style="padding: var(--space-xl); text-align: center;">
+    <h1>Discover the World Differently</h1>
+    <p style="font-family: var(--font-body); color: var(--color-text-muted);">
+      Research-driven guides to remarkable places, unforgettable journeys, and stories worth exploring.
+    </p>
+    <p style="font-family: var(--font-accent); font-size: 1.5rem; margin-top: var(--space-lg);">
+      This is just a test of our fonts and colors ✈️
+    </p>
+  </main>
+</BaseLayout>
