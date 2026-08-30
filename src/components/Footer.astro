@@ -1,0 +1,271 @@
+---
+// Site-wide footer. Uses the confirmed social links, KDP placeholder,
+// and the locked column structure.
+
+const socialLinks = [
+  { name: "Facebook", href: "https://www.facebook.com/worldtravelpicks" },
+  {
+    name: "Instagram",
+    href: "https://www.instagram.com/worldtravelpicksofficial",
+  },
+  { name: "Pinterest", href: "https://www.pinterest.com/worldtravelpicks" },
+  { name: "YouTube", href: "https://www.youtube.com/@WorldTravelPicks" },
+];
+
+const kdpStoreUrl = ""; // TODO: same KDP URL as Header — fill in once published
+
+const currentYear = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="footer-logo">
+          <img src="/favicon.png" alt="World Travel Picks" />
+          <span>World Travel Picks</span>
+        </div>
+        <p class="footer-blurb">
+          Exploring the world through research-driven storytelling. Your trusted
+          companion for budget travel, epic road trips, and unforgettable
+          destinations.
+        </p>
+        <div class="footer-social">
+          {
+            socialLinks.map((link) => (
+              <a
+                href={link.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={link.name}
+                class="social-icon"
+              >
+                <span class="visually-hidden">{link.name}</span>
+                {link.name === "Facebook" && (
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                  >
+                    <path d="M22 12a10 10 0 1 0-11.6 9.9v-7H7.9V12h2.5V9.8c0-2.5 1.5-3.9 3.8-3.9 1.1 0 2.2.2 2.2.2v2.4h-1.3c-1.2 0-1.6.8-1.6 1.6V12h2.8l-.4 2.9h-2.4v7A10 10 0 0 0 22 12Z" />
+                  </svg>
+                )}
+                {link.name === "Instagram" && (
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <rect x="2" y="2" width="20" height="20" rx="5" />
+                    <circle cx="12" cy="12" r="4" />
+                    <circle cx="17.5" cy="6.5" r="1" />
+                  </svg>
+                )}
+                {link.name === "Pinterest" && (
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                  >
+                    <path d="M12 2a10 10 0 0 0-3.6 19.3c0-.8-.1-2 .1-2.8l1.3-5.5s-.3-.7-.3-1.6c0-1.5.9-2.7 2-2.7.9 0 1.4.7 1.4 1.6 0 1-.6 2.4-1 3.7-.2 1 .5 1.9 1.6 1.9 1.9 0 3.2-2.4 3.2-5.3 0-2.2-1.5-3.8-4.1-3.8-3 0-4.9 2.2-4.9 4.7 0 .8.3 1.4.7 1.9.2.2.2.3.1.5l-.3.9c0 .2-.2.3-.4.2-1.1-.5-1.7-1.9-1.7-3.4 0-2.5 2.1-5.5 6.2-5.5 3.3 0 5.5 2.4 5.5 4.9 0 3.4-1.9 5.9-4.6 5.9-.9 0-1.8-.5-2.1-1l-.6 2.2c-.2.8-.6 1.7-1 2.3.9.3 1.8.4 2.8.4a10 10 0 0 0 0-20Z" />
+                  </svg>
+                )}
+                {link.name === "YouTube" && (
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                  >
+                    <path d="M23 12s0-3.5-.4-5.2a3 3 0 0 0-2.1-2.1C18.8 4.3 12 4.3 12 4.3s-6.8 0-8.5.4A3 3 0 0 0 1.4 6.8C1 8.5 1 12 1 12s0 3.5.4 5.2a3 3 0 0 0 2.1 2.1c1.7.4 8.5.4 8.5.4s6.8 0 8.5-.4a3 3 0 0 0 2.1-2.1C23 15.5 23 12 23 12ZM9.8 15.5V8.5L15.8 12l-6 3.5Z" />
+                  </svg>
+                )}
+              </a>
+            ))
+          }
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <h4>Navigate</h4>
+        <a href="/">Home</a>
+        <a href="/books">Books</a>
+        <a href="/guides">Guides</a>
+        <a href={kdpStoreUrl || "#"} target="_blank" rel="noopener noreferrer"
+          >KDP Store ↗</a
+        >
+        <a href="/about-us">About Us</a>
+        <a href="/contact-us">Contact Us</a>
+        <a href="/contact-form">Contact Form</a>
+        <a href="/whats-new">What's New</a>
+      </div>
+
+      <div class="footer-col">
+        <h4>KDP Books Articles</h4>
+        <a href="/books/kids-adventure-series">Kids Adventure Series</a>
+        <a href="/books/explorer-series">Explorer Series</a>
+      </div>
+
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <a href="/cookie-policy">Cookie Policy</a>
+        <a href="/privacy-policy">Privacy Policy</a>
+        <a href="/terms-of-service">Terms of Service</a>
+      </div>
+
+      <div class="footer-col">
+        <h4>Reading</h4>
+        <a href="/reading">Continue Reading</a>
+        <a href="/reading?tab=history">Recently Read Articles</a>
+        <a href="/reading?tab=saved">Saved Articles</a>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>© {currentYear} World Travel Picks. All Rights Reserved.</p>
+      <p>Made with <span class="heart">♥</span> for explorers everywhere.</p>
+      <a href="#cookie-settings">Cookie Settings</a>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background-color: var(--color-surface-secondary);
+    border-top: 1px solid var(--color-border);
+    margin-top: var(--space-2xl);
+  }
+
+  .footer-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: var(--space-xl) var(--space-md) var(--space-md);
+  }
+
+  .footer-top {
+    display: grid;
+    grid-template-columns: 1.8fr repeat(4, 1fr);
+    gap: var(--space-lg);
+    padding-bottom: var(--space-lg);
+  }
+
+  .footer-logo {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    margin-bottom: var(--space-sm);
+  }
+
+  .footer-logo img {
+    width: 24px;
+    height: 24px;
+  }
+
+  .footer-logo span {
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: var(--color-text-strong);
+  }
+
+  .footer-blurb {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    max-width: 320px;
+    margin-bottom: var(--space-sm);
+  }
+
+  .footer-social {
+    display: flex;
+    gap: var(--space-xs);
+  }
+
+  .social-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background-color: var(--color-text-strong);
+    color: var(--color-bg);
+    transition: opacity 0.15s ease;
+  }
+
+  .social-icon:hover {
+    opacity: 0.8;
+  }
+
+  .footer-col {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .footer-col h4 {
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-strong);
+    margin-bottom: 0.2rem;
+  }
+
+  .footer-col a {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    transition: color 0.15s ease;
+  }
+
+  .footer-col a:hover {
+    color: var(--color-text);
+  }
+
+  .footer-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--color-border);
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    flex-wrap: wrap;
+  }
+
+  .heart {
+    color: var(--color-accent);
+  }
+
+  .footer-bottom a {
+    color: var(--color-text-muted);
+  }
+
+  .footer-bottom a:hover {
+    color: var(--color-text);
+  }
+
+  @media (max-width: 900px) {
+    .footer-top {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .footer-top {
+      grid-template-columns: 1fr;
+    }
+    .footer-bottom {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+</style>
