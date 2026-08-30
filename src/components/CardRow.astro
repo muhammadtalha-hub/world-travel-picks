@@ -1,0 +1,111 @@
+---
+// Reusable section wrapper for homepage card rows (Articles, KDP Books Articles, etc.)
+// Pass real items to show cards, or omit/empty them to show the ComingSoon inline state.
+
+import Card from "./Card.astro";
+import ComingSoon from "./ComingSoon.astro";
+
+const {
+  heading,
+  viewAllHref = "#",
+  items = [],
+  showMoreLabel = "Show More",
+} = Astro.props;
+
+const hasItems = items && items.length > 0;
+---
+
+<section class="card-row">
+  <div class="card-row-header">
+    <h2>{heading}</h2>
+    <a href={viewAllHref} class="view-all-link">View All →</a>
+  </div>
+
+  {
+    hasItems ? (
+      <>
+        <div class="card-row-grid">
+          {items.map(
+            (item: {
+              image: string;
+              tag: string;
+              title: string;
+              meta: string;
+              href: string;
+            }) => (
+              <Card
+                image={item.image}
+                tag={item.tag}
+                title={item.title}
+                meta={item.meta}
+                href={item.href}
+              />
+            ),
+          )}
+        </div>
+        <div class="card-row-footer">
+          <button class="btn btn-solid btn-sm">{showMoreLabel} ↓</button>
+        </div>
+      </>
+    ) : (
+      <ComingSoon variant="inline" title="Coming Soon" />
+    )
+  }
+</section>
+
+<style>
+  .card-row {
+    padding: var(--space-lg) var(--space-md);
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .card-row-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: var(--space-sm);
+  }
+
+  .card-row-header h2 {
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin: 0;
+  }
+
+  .view-all-link {
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+  }
+
+  .view-all-link:hover {
+    color: var(--color-text);
+  }
+
+  .card-row-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: var(--space-sm);
+  }
+
+  .card-row-footer {
+    display: flex;
+    justify-content: center;
+    margin-top: var(--space-md);
+  }
+
+  @media (max-width: 1100px) {
+    .card-row-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  @media (max-width: 650px) {
+    .card-row-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+</style>

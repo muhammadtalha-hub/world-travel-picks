@@ -3,6 +3,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import Hero from "../components/Hero.astro";
 import FeatureStrip from "../components/FeatureStrip.astro";
 import HomeFeaturedRow from "../components/HomeFeaturedRow.astro";
+import CardRow from "../components/CardRow.astro";
 import heroHomeImage from "../assets/images/hero-home.jpg";
 ---
 
@@ -14,6 +15,55 @@ import heroHomeImage from "../assets/images/hero-home.jpg";
     />
     <FeatureStrip />
     <HomeFeaturedRow />
+
+    <CardRow
+      heading="Articles"
+      viewAllHref="/articles"
+      items={[
+        {
+          image:
+            "https://images.unsplash.com/photo-1533587851505-d119e13fa0d7?w=600",
+          tag: "Italy",
+          title: "Discover the Hidden Villages of Italy",
+          meta: "7 min read · Aug 21, 2026",
+          href: "#",
+        },
+        {
+          image:
+            "https://images.unsplash.com/photo-1520769945061-0a448c463865?w=600",
+          tag: "Iceland",
+          title: "Iceland Road Trip: The Ultimate Guide",
+          meta: "9 min read · Aug 18, 2026",
+          href: "#",
+        },
+        {
+          image:
+            "https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=600",
+          tag: "Portugal",
+          title: "Lisbon Travel Guide for First Timers",
+          meta: "6 min read · Aug 16, 2026",
+          href: "#",
+        },
+        {
+          image:
+            "https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=600",
+          tag: "Thailand",
+          title: "10 Best Islands in Thailand",
+          meta: "6 min read · Aug 16, 2026",
+          href: "#",
+        },
+        {
+          image:
+            "https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?w=600",
+          tag: "Switzerland",
+          title: "Swiss Alps: A Complete Guide",
+          meta: "7 min read · Aug 16, 2026",
+          href: "#",
+        },
+      ]}
+    />
+
+    <CardRow heading="KDP Books Articles" viewAllHref="/books" items={[]} />
 
     <p
       style="padding: var(--space-xl); text-align: center; color: var(--color-text-muted);"
