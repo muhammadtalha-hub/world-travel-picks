@@ -1,0 +1,92 @@
+---
+// Two variants:
+// - "page" (default): full empty-state page — icon, heading, message, Back to Home button
+// - "inline": quiet placeholder for a section on an otherwise-full page (e.g. homepage
+//   "KDP Books Articles" row before any books are published) — no button, no redirect,
+//   just reserves the space with a simple label.
+
+const {
+  variant = "page",
+  title = "Coming Soon",
+  message = "We're working on this section. Check back soon for new content!",
+} = Astro.props;
+---
+
+{
+  variant === "inline" ? (
+    <div class="coming-soon-inline">
+      <span>{title}</span>
+    </div>
+  ) : (
+    <div class="coming-soon">
+      <div class="coming-soon-icon">
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+          <circle
+            cx="24"
+            cy="24"
+            r="20"
+            stroke="currentColor"
+            stroke-width="1.5"
+          />
+          <path
+            d="M24 14V24L30 28"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </div>
+      <h2>{title}</h2>
+      <p>{message}</p>
+      <a href="/" class="btn btn-outline">
+        Back to Home
+      </a>
+    </div>
+  )
+}
+
+<style>
+  .coming-soon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: var(--space-2xl) var(--space-md);
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  .coming-soon-icon {
+    color: var(--color-accent);
+    margin-bottom: var(--space-sm);
+  }
+
+  .coming-soon h2 {
+    margin-bottom: var(--space-xs);
+  }
+
+  .coming-soon p {
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-md);
+  }
+
+  .coming-soon-inline {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 160px;
+    border: 1px dashed var(--color-border);
+    border-radius: var(--radius-md);
+    background-color: var(--color-surface-secondary);
+  }
+
+  .coming-soon-inline span {
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-muted);
+  }
+</style>
