@@ -221,6 +221,10 @@ const loopedCountries = [...countries, ...countries];
   const track = document.getElementById("marquee-track");
 
   if (wrap && track) {
+    // TypeScript can't tell that `wrap` and `track` stay non-null inside
+    // the functions defined below, so we make that explicit once here.
+    const trackEl: HTMLElement = track;
+    const wrapEl: HTMLElement = wrap;
     let position = 0;
     let isDragging = false;
     let startX = 0;
@@ -232,7 +236,7 @@ const loopedCountries = [...countries, ...countries];
     // that same amount — since the second copy is identical, this
     // jump is invisible to the eye, creating the infinite loop.
     function getLoopWidth() {
-      return track.scrollWidth / 2;
+      return trackEl.scrollWidth / 2;
     }
 
     function applyPosition() {
@@ -240,7 +244,7 @@ const loopedCountries = [...countries, ...countries];
       // Keep position within a safe looping range (handles both directions)
       if (position <= -loopWidth) position += loopWidth;
       if (position > 0) position -= loopWidth;
-      track.style.transform = `translateX(${position}px)`;
+      trackEl.style.transform = `translateX(${position}px)`;
     }
 
     // Slow, continuous auto-scroll (reduced speed per request)
@@ -259,7 +263,7 @@ const loopedCountries = [...countries, ...countries];
       isDragging = true;
       startX = clientX;
       startPosition = position;
-      wrap.classList.add("dragging");
+      wrapEl.classList.add("dragging");
     }
 
     function duringDrag(clientX: number) {
@@ -272,24 +276,24 @@ const loopedCountries = [...countries, ...countries];
     function endDrag() {
       if (!isDragging) return;
       isDragging = false;
-      wrap.classList.remove("dragging");
+      wrapEl.classList.remove("dragging");
     }
 
-    wrap.addEventListener("mousedown", (e) => startDrag(e.clientX));
+    wrapEl.addEventListener("mousedown", (e) => startDrag(e.clientX));
     window.addEventListener("mousemove", (e) => duringDrag(e.clientX));
     window.addEventListener("mouseup", endDrag);
 
     // --- Drag handling (touch, for mobile) ---
-    wrap.addEventListener(
+    wrapEl.addEventListener(
       "touchstart",
       (e) => startDrag(e.touches[0].clientX),
       { passive: true },
     );
-    wrap.addEventListener(
+    wrapEl.addEventListener(
       "touchmove",
       (e) => duringDrag(e.touches[0].clientX),
       { passive: true },
     );
-    wrap.addEventListener("touchend", endDrag);
+    wrapEl.addEventListener("touchend", endDrag);
   }
 </script>

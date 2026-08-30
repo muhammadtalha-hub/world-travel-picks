@@ -10,6 +10,7 @@ const socialLinks = [
   },
   { name: "Pinterest", href: "https://www.pinterest.com/worldtravelpicks" },
   { name: "YouTube", href: "https://www.youtube.com/@WorldTravelPicks" },
+  { name: "Email", href: "mailto:hello@worldtravelpicks.com" },
 ];
 
 const kdpStoreUrl = ""; // TODO: same KDP URL as Header — fill in once published
@@ -22,7 +23,6 @@ const currentYear = new Date().getFullYear();
     <div class="footer-top">
       <div class="footer-brand">
         <div class="footer-logo">
-          <img src="/favicon.png" alt="World Travel Picks" />
           <span>World Travel Picks</span>
         </div>
         <p class="footer-blurb">
@@ -83,6 +83,23 @@ const currentYear = new Date().getFullYear();
                     fill="currentColor"
                   >
                     <path d="M23 12s0-3.5-.4-5.2a3 3 0 0 0-2.1-2.1C18.8 4.3 12 4.3 12 4.3s-6.8 0-8.5.4A3 3 0 0 0 1.4 6.8C1 8.5 1 12 1 12s0 3.5.4 5.2a3 3 0 0 0 2.1 2.1c1.7.4 8.5.4 8.5.4s6.8 0 8.5-.4a3 3 0 0 0 2.1-2.1C23 15.5 23 12 23 12ZM9.8 15.5V8.5L15.8 12l-6 3.5Z" />
+                  </svg>
+                )}
+                {link.name === "Email" && (
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <rect x="2" y="4" width="20" height="16" rx="2" />
+                    <path
+                      d="M2 6l10 7L22 6"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
                   </svg>
                 )}
               </a>
