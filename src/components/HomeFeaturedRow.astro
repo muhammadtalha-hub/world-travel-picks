@@ -1,0 +1,259 @@
+---
+// The three-column promo row: Latest Story, Resume Reading, Premium Guides.
+// Each column has a genuinely different layout, so they're written directly
+// here rather than forced into one reusable card shape.
+
+const {
+  latestStory = {
+    tag: "Japan",
+    title: "10 Incredible Places to Visit in Japan",
+    description:
+      "Beyond Tokyo and Kyoto, Japan is full of breathtaking places that most travelers miss.",
+    readTime: "8 min read",
+    date: "May 24, 2026",
+    image: null,
+    href: "#",
+  },
+  resumeReading = {
+    label: "YOU LEFT OFF",
+    title: "Switzerland: A Scenic Journey Through the Alps",
+    progress: 60,
+    image: null,
+    href: "#",
+  },
+} = Astro.props;
+---
+
+<section class="featured-row">
+  <div class="featured-row-inner">
+    <!-- Latest Story -->
+    <a href={latestStory.href} class="featured-card latest-story">
+      <div class="featured-card-image">
+        {
+          latestStory.image ? (
+            <img
+              src={latestStory.image}
+              alt={latestStory.title}
+              loading="lazy"
+            />
+          ) : (
+            <div class="image-placeholder" />
+          )
+        }
+        <span class="featured-label">Latest Story</span>
+      </div>
+      <div class="featured-card-body">
+        <span class="tag-pill">{latestStory.tag}</span>
+        <h3>{latestStory.title}</h3>
+        <p class="featured-desc">{latestStory.description}</p>
+        <p class="featured-meta">{latestStory.readTime} · {latestStory.date}</p>
+        <span class="btn btn-solid btn-sm">Read the Article →</span>
+      </div>
+    </a>
+
+    <!-- Resume Reading -->
+    <a href={resumeReading.href} class="featured-card resume-reading">
+      <div class="featured-card-image">
+        {
+          resumeReading.image ? (
+            <img
+              src={resumeReading.image}
+              alt={resumeReading.title}
+              loading="lazy"
+            />
+          ) : (
+            <div class="image-placeholder" />
+          )
+        }
+        <span class="featured-label">Resume Reading</span>
+      </div>
+      <div class="featured-card-body">
+        <span class="left-off-pill">{resumeReading.label}</span>
+        <h3>{resumeReading.title}</h3>
+        <div class="progress-row">
+          <div class="progress-track">
+            <div
+              class="progress-fill"
+              style={`width: ${resumeReading.progress}%`}
+            >
+            </div>
+          </div>
+          <span class="progress-label">{resumeReading.progress}% complete</span>
+        </div>
+        <span class="btn btn-solid btn-sm">Continue Reading →</span>
+      </div>
+    </a>
+
+    <!-- Premium Guides Promo -->
+    <div class="featured-card premium-promo">
+      <h3>Premium Travel Guides<br />for Every Journey</h3>
+      <p>
+        Well-researched guides, itineraries & travel resources to plan better.
+      </p>
+      <a href="/guides" class="btn btn-solid btn-sm">Explore Guides →</a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .featured-row {
+    padding: var(--space-lg) var(--space-md);
+  }
+
+  .featured-row-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1.3fr 1.3fr 1fr;
+    gap: var(--space-md);
+  }
+
+  .featured-card {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .featured-card-image {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    background-color: var(--color-surface-secondary);
+  }
+
+  .featured-card-image img,
+  .image-placeholder {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .image-placeholder {
+    background: linear-gradient(
+      135deg,
+      var(--color-surface-secondary),
+      var(--color-border)
+    );
+  }
+
+  .featured-label {
+    position: absolute;
+    top: var(--space-xs);
+    left: var(--space-xs);
+    background-color: rgba(20, 21, 21, 0.75);
+    color: #ffffff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0.3rem 0.6rem;
+    border-radius: var(--radius-sm);
+  }
+
+  .featured-card-body {
+    padding: var(--space-sm);
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    flex: 1;
+  }
+
+  .featured-card-body h3 {
+    font-size: 1.05rem;
+    margin: 0;
+  }
+
+  .tag-pill {
+    align-self: flex-start;
+    background-color: var(--color-accent);
+    color: var(--color-text-strong);
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 0.2rem 0.5rem;
+    border-radius: var(--radius-sm);
+  }
+
+  .left-off-pill {
+    align-self: flex-start;
+    color: var(--color-text-muted);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+
+  .featured-desc {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+
+  .featured-meta {
+    font-size: 0.78rem;
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+
+  .featured-card-body .btn {
+    align-self: flex-start;
+    margin-top: auto;
+  }
+
+  .progress-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+  }
+
+  .progress-track {
+    flex: 1;
+    height: 6px;
+    background-color: var(--color-border);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background-color: var(--color-button-bg);
+    border-radius: 999px;
+  }
+
+  .progress-label {
+    font-size: 0.78rem;
+    color: var(--color-text-muted);
+    white-space: nowrap;
+  }
+
+  .premium-promo {
+    background-color: var(--color-bg-dark);
+    color: #ffffff;
+    padding: var(--space-md);
+    justify-content: center;
+    gap: var(--space-xs);
+  }
+
+  .premium-promo h3 {
+    color: #ffffff;
+    font-size: 1.3rem;
+  }
+
+  .premium-promo p {
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 0.85rem;
+  }
+
+  .premium-promo .btn {
+    align-self: flex-start;
+    margin-top: var(--space-xs);
+  }
+
+  @media (max-width: 950px) {
+    .featured-row-inner {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
