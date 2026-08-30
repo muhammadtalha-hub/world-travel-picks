@@ -1,74 +1,13 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import Card from "../components/Card.astro";
-import Skeleton from "../components/Skeleton.astro";
 ---
 
 <BaseLayout title="World Travel Picks — Discover the World Differently">
-  <main style="padding: var(--space-xl); text-align: center;">
-    <h1>Discover the World Differently</h1>
-    <p style="font-family: var(--font-body); color: var(--color-text-muted);">
-      Research-driven guides to remarkable places, unforgettable journeys, and
-      stories worth exploring.
-    </p>
+  <main>
     <p
-      style="font-family: var(--font-accent); font-size: 1.5rem; margin-top: var(--space-lg);"
+      style="padding: var(--space-xl); text-align: center; color: var(--color-text-muted);"
     >
-      This is just a test of our fonts and colors ✈️
+      Homepage content coming in Phase 3.
     </p>
-    <div
-      style="margin-top: var(--space-lg); display: flex; gap: var(--space-sm); justify-content: center;"
-    >
-      <a href="#" class="btn btn-solid">Read the Article</a>
-      <a href="#" class="btn btn-outline">Explore Guides</a>
-    </div>
-    <div
-      style="margin-top: var(--space-xl); display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-md); text-align: left; max-width: 900px; margin-left: auto; margin-right: auto;"
-    >
-      <Card
-        image="https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=600"
-        tag="Japan"
-        title="10 Incredible Places to Visit in Japan"
-        meta="8 min read · Aug 21, 2026"
-      />
-      <Card
-        image="https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?w=600"
-        tag="Switzerland"
-        title="Switzerland: A Scenic Journey Through the Alps"
-        meta="6 min read · Aug 16, 2026"
-      />
-      <Card
-        image="https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=600"
-        tag="Iceland"
-        title="Iceland Road Trip: The Ultimate Guide"
-        meta="9 min read · Aug 18, 2026"
-      />
-    </div>
-    <h2 style="margin-top: var(--space-xl);">Loading State Preview</h2>
-    <div
-      style="display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-md); max-width: 900px; margin: 0 auto; text-align: left;"
-    >
-      <div>
-        <Skeleton variant="image" height="180px" />
-        <div style="margin-top: var(--space-xs);">
-          <Skeleton variant="title" width="90%" />
-          <Skeleton variant="text" width="60%" />
-        </div>
-      </div>
-      <div>
-        <Skeleton variant="image" height="180px" />
-        <div style="margin-top: var(--space-xs);">
-          <Skeleton variant="title" width="80%" />
-          <Skeleton variant="text" width="50%" />
-        </div>
-      </div>
-      <div style="display: flex; align-items: center; gap: var(--space-xs);">
-        <Skeleton variant="circle" />
-        <div style="flex: 1;">
-          <Skeleton variant="text" width="80%" />
-          <Skeleton variant="text" width="40%" />
-        </div>
-      </div>
-    </div>
   </main>
 </BaseLayout>
