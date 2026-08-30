@@ -6,9 +6,23 @@ const kdpStoreUrl = ""; // TODO: paste your KDP/Amazon store URL here once publi
 
 <header class="site-header">
   <div class="header-inner">
+    <button
+      class="icon-btn mobile-only mobile-menu-trigger"
+      aria-label="Open menu"
+      id="mobile-menu-btn-left"
+    >
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <path
+          d="M2 5H18M2 10H18M2 15H18"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"></path>
+      </svg>
+    </button>
+
     <a href="/" class="logo">
-      <img src="/favicon.png" alt="World Travel Picks" class="logo-mark" />
-      <span class="logo-text">World Travel Picks</span>
+      <span class="logo-text logo-text-full">World Travel Picks</span>
+      <span class="logo-text logo-text-short">W-T-P</span>
     </a>
 
     <nav class="main-nav">
@@ -93,21 +107,70 @@ const kdpStoreUrl = ""; // TODO: paste your KDP/Amazon store URL here once publi
           <span class="theme-toggle-thumb"></span>
         </span>
       </button>
+    </div>
+  </div>
 
-      <button
-        class="icon-btn mobile-only"
-        aria-label="Open menu"
-        id="mobile-menu-btn"
-      >
+  <div class="mobile-drawer-overlay" id="mobile-drawer-overlay"></div>
+
+  <div class="mobile-drawer" id="mobile-drawer">
+    <div class="mobile-drawer-header">
+      <span class="logo-text">World Travel Picks</span>
+      <button class="icon-btn" id="mobile-drawer-close" aria-label="Close menu">
         <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
           <path
-            d="M2 5H18M2 10H18M2 15H18"
+            d="M4 4L16 16M16 4L4 16"
             stroke="currentColor"
             stroke-width="1.5"
             stroke-linecap="round"></path>
         </svg>
       </button>
     </div>
+
+    <nav class="mobile-drawer-nav">
+      <a href="/">Home</a>
+
+      <div class="mobile-accordion">
+        <button class="mobile-accordion-trigger">
+          Books
+          <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
+            <path
+              d="M1 1L5 5L9 1"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"></path>
+          </svg>
+        </button>
+        <div class="mobile-accordion-content">
+          <a href="/books/kids-adventure-series">Kids Adventure Series</a>
+          <a href="/books/explorer-series">Explorer Series</a>
+        </div>
+      </div>
+
+      <div class="mobile-accordion">
+        <button class="mobile-accordion-trigger">
+          Categories
+          <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
+            <path
+              d="M1 1L5 5L9 1"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"></path>
+          </svg>
+        </button>
+        <div class="mobile-accordion-content">
+          <a href="/destinations">Destinations</a>
+          <a href="/guides">Guides</a>
+        </div>
+      </div>
+
+      <a href={kdpStoreUrl || "#"} target="_blank" rel="noopener noreferrer"
+        >KDP Store ↗</a
+      >
+      <a href="/about-us">About Us</a>
+      <a href="/contact-us">Contact</a>
+    </nav>
   </div>
 </header>
 
@@ -137,11 +200,6 @@ const kdpStoreUrl = ""; // TODO: paste your KDP/Amazon store URL here once publi
     flex-shrink: 0;
   }
 
-  .logo-mark {
-    width: 28px;
-    height: 28px;
-  }
-
   .logo-text {
     font-family: var(--font-body);
     font-weight: 700;
@@ -149,6 +207,14 @@ const kdpStoreUrl = ""; // TODO: paste your KDP/Amazon store URL here once publi
     letter-spacing: 0.02em;
     color: var(--color-text-strong);
     text-transform: uppercase;
+  }
+
+  .logo-text-short {
+    display: none;
+  }
+
+  .mobile-menu-trigger {
+    display: none;
   }
 
   .main-nav {
@@ -292,9 +358,119 @@ const kdpStoreUrl = ""; // TODO: paste your KDP/Amazon store URL here once publi
     .main-nav {
       display: none;
     }
-    .mobile-only {
+    .mobile-menu-trigger {
       display: flex;
     }
+    .logo-text-full {
+      display: none;
+    }
+    .logo-text-short {
+      display: inline;
+    }
+  }
+
+  /* --- Mobile drawer --- */
+  .mobile-drawer-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 90;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+
+  .mobile-drawer-overlay.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .mobile-drawer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 300px;
+    max-width: 85vw;
+    background-color: var(--color-surface);
+    z-index: 100;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .mobile-drawer.open {
+    transform: translateX(0);
+  }
+
+  .mobile-drawer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-sm) var(--space-md);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .mobile-drawer-header .logo-text {
+    color: var(--color-text-strong);
+  }
+
+  .mobile-drawer-nav {
+    display: flex;
+    flex-direction: column;
+    padding: var(--space-sm) var(--space-md);
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+  }
+
+  .mobile-drawer-nav > a {
+    color: var(--color-text);
+    padding: var(--space-xs) 0;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .mobile-accordion {
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .mobile-accordion-trigger {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: none;
+    border: none;
+    color: var(--color-text);
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    padding: var(--space-xs) 0;
+    cursor: pointer;
+  }
+
+  .mobile-accordion-trigger svg {
+    transition: transform 0.2s ease;
+  }
+
+  .mobile-accordion.open .mobile-accordion-trigger svg {
+    transform: rotate(180deg);
+  }
+
+  .mobile-accordion-content {
+    display: none;
+    flex-direction: column;
+    padding-left: var(--space-sm);
+    padding-bottom: var(--space-xs);
+  }
+
+  .mobile-accordion.open .mobile-accordion-content {
+    display: flex;
+  }
+
+  .mobile-accordion-content a {
+    color: var(--color-text-muted);
+    padding: 0.4rem 0;
   }
 </style>
 
@@ -337,5 +513,34 @@ const kdpStoreUrl = ""; // TODO: paste your KDP/Amazon store URL here once publi
     const current = document.documentElement.getAttribute("data-theme");
     const next = current === "dark" ? "light" : "dark";
     (window as any).setWtpTheme(next);
+  });
+
+  // Mobile drawer open/close
+  const drawer = document.getElementById("mobile-drawer");
+  const overlay = document.getElementById("mobile-drawer-overlay");
+  const openBtn = document.getElementById("mobile-menu-btn-left");
+  const closeBtn = document.getElementById("mobile-drawer-close");
+
+  function openDrawer() {
+    drawer?.classList.add("open");
+    overlay?.classList.add("open");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeDrawer() {
+    drawer?.classList.remove("open");
+    overlay?.classList.remove("open");
+    document.body.style.overflow = "";
+  }
+
+  openBtn?.addEventListener("click", openDrawer);
+  closeBtn?.addEventListener("click", closeDrawer);
+  overlay?.addEventListener("click", closeDrawer);
+
+  // Mobile accordions (Books / Categories expand inline)
+  document.querySelectorAll(".mobile-accordion-trigger").forEach((trigger) => {
+    trigger.addEventListener("click", () => {
+      trigger.parentElement?.classList.toggle("open");
+    });
   });
 </script>
