@@ -2,12 +2,15 @@
 // This layout wraps every page on the site.
 // It defines the shared <head>, favicon, fonts, and global styles.
 
-import '../styles/global.css';
+import "../styles/global.css";
 
-const { title = "World Travel Picks", description = "Discover the World Differently" } = Astro.props;
+const {
+  title = "World Travel Picks",
+  description = "Discover the World Differently",
+} = Astro.props;
 ---
 
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -17,6 +20,15 @@ const { title = "World Travel Picks", description = "Discover the World Differen
     <title>{title}</title>
   </head>
   <body>
+    <script is:inline>
+      // Runs immediately, before page paint, to avoid a flash of wrong theme.
+      const savedTheme = localStorage.getItem("wtp-theme");
+      const prefersDark = window.matchMedia(
+        "(prefers-color-scheme: dark)",
+      ).matches;
+      const theme = savedTheme || (prefersDark ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    </script>
     <slot />
   </body>
 </html>

@@ -42,6 +42,30 @@
   --radius-lg: 20px;
 }
 
+
+/* --- Dark mode overrides --- */
+/* Activated by adding data-theme="dark" to the <html> tag */
+:root[data-theme="dark"] {
+  --color-bg: #14161A;
+  --color-bg-dark: #0A0B0D;
+  --color-text: #F0EDE6;
+  --color-text-muted: #9A9DA3;
+  --color-text-on-dark: #F0EDE6;
+
+  --color-button-bg: #F0EDE6;
+  --color-button-text: #14161A;
+
+  --color-accent: #2A2D33;
+  --color-border: #2A2D33;
+
+  --color-surface: #1C1F24;
+}
+
+/* Smooth transition when switching themes */
+body {
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
 /* --- Reset basics --- */
 *, *::before, *::after {
   box-sizing: border-box;

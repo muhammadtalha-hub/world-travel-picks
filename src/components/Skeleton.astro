@@ -1,0 +1,56 @@
+---
+// Reusable loading placeholder. Use this anywhere content hasn't loaded yet,
+// so the page shape stays stable instead of jumping around.
+//
+// variant: "image" | "text" | "title" | "circle"
+// width/height: any CSS size, e.g. "100%", "60px"
+
+const { variant = "text", width = "100%", height } = Astro.props;
+
+const defaultHeights = {
+  image: "200px",
+  text: "1rem",
+  title: "1.75rem",
+  circle: "48px",
+};
+
+const finalHeight =
+  height || defaultHeights[variant as keyof typeof defaultHeights] || "1rem";
+---
+
+<div
+  class={`skeleton skeleton-${variant}`}
+  style={`width: ${width}; height: ${finalHeight};`}
+>
+</div>
+
+<style>
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      var(--color-border) 25%,
+      #f0ede6 50%,
+      var(--color-border) 75%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-pulse 1.5s ease-in-out infinite;
+    border-radius: var(--radius-sm);
+  }
+
+  .skeleton-circle {
+    border-radius: 50%;
+  }
+
+  .skeleton-image {
+    border-radius: var(--radius-md);
+  }
+
+  @keyframes skeleton-pulse {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
+</style>
