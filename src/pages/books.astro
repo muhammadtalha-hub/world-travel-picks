@@ -1,0 +1,212 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import ListingHero from "../components/ListingHero.astro";
+import ListingFilterBar from "../components/ListingFilterBar.astro";
+import Card from "../components/Card.astro";
+import ComingSoon from "../components/ComingSoon.astro";
+import { getArticlesBySection, getCardDisplayTags } from "../utils/articles";
+
+const articles = await getArticlesBySection("Books");
+
+const sortedArticles = [...articles].sort(
+  (a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf(),
+);
+
+const hasArticles = sortedArticles.length > 0;
+---
+
+<BaseLayout title="Books — World Travel Picks">
+  <ListingHero
+    eyebrow="Travel Books"
+    heading="Books for Every Explorer"
+    description="Curated travel books, inspiring stories, and practical guides to fuel your wanderlust and deepen your journeys."
+  />
+
+  <ListingFilterBar />
+
+  <section class="listing-content">
+    {
+      hasArticles ? (
+        <>
+          <p class="listing-count" id="listing-count">
+            Showing {sortedArticles.length} of {sortedArticles.length} books
+          </p>
+
+          <div class="listing-grid" id="listing-grid">
+            {sortedArticles.map((article) => (
+              <div
+                class="listing-card-wrap"
+                data-title={article.data.title.toLowerCase()}
+                data-tags={getCardDisplayTags(article).join(" ").toLowerCase()}
+                data-date={article.data.publishDate.toISOString()}
+              >
+                <Card
+                  image={article.data.coverImage}
+                  tag={getCardDisplayTags(article).join(" · ")}
+                  title={article.data.title}
+                  meta={`${article.data.readTime} · ${article.data.publishDate.toDateString()}`}
+                  href={`/articles/${article.id}`}
+                />
+              </div>
+            ))}
+          </div>
+
+          <p class="no-results-msg" id="no-results-msg" style="display: none;">
+            No books match your search.
+          </p>
+        </>
+      ) : (
+        <ComingSoon
+          title="Books Coming Soon"
+          message="We're preparing exciting travel books for young explorers and adventurers alike. Check back soon!"
+        />
+      )
+    }
+  </section>
+</BaseLayout>
+
+<style>
+  .listing-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: var(--space-md);
+  }
+
+  .listing-count {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-sm);
+  }
+
+  .listing-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-sm);
+  }
+
+  .listing-grid.view-list {
+    grid-template-columns: 1fr;
+  }
+
+  .listing-grid.view-list .listing-card-wrap :global(.card) {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+  }
+
+  .listing-grid.view-list .listing-card-wrap :global(.card-image-wrap) {
+    width: 240px;
+    flex-shrink: 0;
+    aspect-ratio: auto;
+  }
+
+  .listing-grid.view-list .listing-card-wrap :global(.card-body) {
+    flex: 1;
+  }
+
+  @media (max-width: 700px) {
+    .listing-grid.view-list .listing-card-wrap :global(.card) {
+      flex-direction: column;
+    }
+    .listing-grid.view-list .listing-card-wrap :global(.card-image-wrap) {
+      width: 100%;
+    }
+  }
+
+  .no-results-msg {
+    text-align: center;
+    color: var(--color-text-muted);
+    padding: var(--space-xl) 0;
+  }
+
+  @media (max-width: 1100px) {
+    .listing-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 600px) {
+    .listing-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  const grid = document.getElementById("listing-grid");
+  const countLabel = document.getElementById("listing-count");
+  const noResultsMsg = document.getElementById("no-results-msg");
+
+  function getCardWraps(): HTMLElement[] {
+    return grid ? Array.from(grid.querySelectorAll(".listing-card-wrap")) : [];
+  }
+
+  function updateCount(visibleCount: number, total: number) {
+    if (countLabel) {
+      countLabel.textContent = `Showing ${visibleCount} of ${total} books`;
+    }
+    if (noResultsMsg) {
+      noResultsMsg.style.display = visibleCount === 0 ? "block" : "none";
+    }
+  }
+
+  function applySearch(query: string) {
+    const cards = getCardWraps();
+    const lowerQuery = query.toLowerCase().trim();
+    let visibleCount = 0;
+
+    cards.forEach((card) => {
+      const title = card.dataset.title || "";
+      const tags = card.dataset.tags || "";
+      const matches =
+        !lowerQuery || title.includes(lowerQuery) || tags.includes(lowerQuery);
+      card.style.display = matches ? "" : "none";
+      if (matches) visibleCount++;
+    });
+
+    updateCount(visibleCount, cards.length);
+  }
+
+  function applySort(order: string) {
+    if (!grid) return;
+    const cards = getCardWraps();
+    cards.sort((a, b) => {
+      const dateA = new Date(a.dataset.date || "").getTime();
+      const dateB = new Date(b.dataset.date || "").getTime();
+      return order === "oldest" ? dateA - dateB : dateB - dateA;
+    });
+    cards.forEach((card) => grid.appendChild(card));
+  }
+
+  function applyRegion(region: string) {
+    const lowerRegion = region.toLowerCase();
+    const cards = getCardWraps();
+    let visibleCount = 0;
+
+    cards.forEach((card) => {
+      const tags = card.dataset.tags || "";
+      const matches =
+        lowerRegion === "all regions" || tags.includes(lowerRegion);
+      card.style.display = matches ? "" : "none";
+      if (matches) visibleCount++;
+    });
+
+    updateCount(visibleCount, cards.length);
+  }
+
+  document.addEventListener("listing-search-change", ((e: CustomEvent) => {
+    applySearch(e.detail);
+  }) as EventListener);
+
+  document.addEventListener("listing-sort-change", ((e: CustomEvent) => {
+    applySort(e.detail);
+  }) as EventListener);
+
+  document.addEventListener("listing-region-change", ((e: CustomEvent) => {
+    applyRegion(e.detail);
+  }) as EventListener);
+
+  document.addEventListener("listing-view-change", ((e: CustomEvent) => {
+    grid?.classList.toggle("view-list", e.detail === "list");
+  }) as EventListener);
+</script>
