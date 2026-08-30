@@ -1,0 +1,118 @@
+---
+// Homepage feature/value strip — 4 items with icon, heading, description.
+// Pass a custom "features" array to reuse this elsewhere if needed.
+
+const {
+  features = [
+    {
+      icon: "globe",
+      title: "150+ Destinations Researched",
+      description: "In-depth, trusted guides",
+    },
+    {
+      icon: "compass",
+      title: "Endless Travel Inspiration",
+      description: "Ideas for every kind of traveler",
+    },
+    {
+      icon: "document",
+      title: "Expert Travel Insights",
+      description: "Curated by researchers and travelers",
+    },
+    {
+      icon: "shield",
+      title: "Safe & Reliable Travel Planning",
+      description: "Practical tips for worry-free adventures",
+    },
+  ],
+} = Astro.props;
+
+const icons: Record<string, string> = {
+  globe: `<circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M3 12H21M12 3C14.5 5.5 15.5 8.5 15.5 12C15.5 15.5 14.5 18.5 12 21C9.5 18.5 8.5 15.5 8.5 12C8.5 8.5 9.5 5.5 12 3Z" stroke="currentColor" stroke-width="1.5"/>`,
+  compass: `<circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M15 9L13 13L9 15L11 11L15 9Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>`,
+  document: `<path d="M6 3H14L18 7V21H6V3Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M9 12H15M9 16H15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>`,
+  shield: `<path d="M12 3L19 6V11C19 15.5 16 19.5 12 21C8 19.5 5 15.5 5 11V6L12 3Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>`,
+};
+---
+
+<section class="feature-strip">
+  <div class="feature-strip-inner">
+    {
+      features.map(
+        (feature: { icon: string; title: string; description: string }) => (
+          <div class="feature-item">
+            <div class="feature-icon" set:html={icons[feature.icon]} />
+            <div class="feature-text">
+              <h3>{feature.title}</h3>
+              <p>{feature.description}</p>
+            </div>
+          </div>
+        ),
+      )
+    }
+  </div>
+</section>
+
+<style>
+  .feature-strip {
+    background-color: var(--color-surface-secondary);
+    padding: var(--space-lg) var(--space-md);
+  }
+
+  .feature-strip-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-lg);
+  }
+
+  .feature-item {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-sm);
+  }
+
+  .feature-icon {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background-color: var(--color-accent);
+    color: var(--color-text-strong);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .feature-icon svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .feature-text h3 {
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 0.2rem;
+    color: var(--color-text-strong);
+  }
+
+  .feature-text p {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+
+  @media (max-width: 900px) {
+    .feature-strip-inner {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 500px) {
+    .feature-strip-inner {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

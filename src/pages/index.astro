@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Hero from "../components/Hero.astro";
+import FeatureStrip from "../components/FeatureStrip.astro";
 import heroHomeImage from "../assets/images/hero-home.jpg";
 ---
 
@@ -10,6 +11,7 @@ import heroHomeImage from "../assets/images/hero-home.jpg";
       imageUrl={heroHomeImage}
       imageAlt="A traveler looking out over mountains and a lake at sunrise"
     />
+    <FeatureStrip />
 
     <p
       style="padding: var(--space-xl); text-align: center; color: var(--color-text-muted);"
