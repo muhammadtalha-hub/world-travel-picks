@@ -28,6 +28,13 @@ const {
       ).matches;
       const theme = savedTheme || (prefersDark ? "dark" : "light");
       document.documentElement.setAttribute("data-theme", theme);
+
+      // Makes the toggle button (built in Phase 2) able to call this
+      // and have the choice remembered across refreshes.
+      window.setWtpTheme = function (newTheme) {
+        document.documentElement.setAttribute("data-theme", newTheme);
+        localStorage.setItem("wtp-theme", newTheme);
+      };
     </script>
     <slot />
   </body>
