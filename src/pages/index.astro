@@ -1,13 +1,20 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import Hero from "../components/Hero.astro";
+import heroHomeImage from "../assets/images/hero-home.jpg";
 ---
 
 <BaseLayout title="World Travel Picks — Discover the World Differently">
   <main>
+    <Hero
+      imageUrl={heroHomeImage}
+      imageAlt="A traveler looking out over mountains and a lake at sunrise"
+    />
+
     <p
       style="padding: var(--space-xl); text-align: center; color: var(--color-text-muted);"
     >
-      Homepage content coming in Phase 3.
+      More homepage sections coming next.
     </p>
   </main>
 </BaseLayout>

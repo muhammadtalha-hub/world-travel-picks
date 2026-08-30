@@ -1,0 +1,198 @@
+---
+// Homepage hero section. Uses Astro's built-in Image component for
+// automatic optimization: modern formats (WebP), correct sizing,
+// and no layout shift while loading.
+
+import { Image } from "astro:assets";
+
+const {
+  eyebrow = "YOUR TRAVEL RESEARCH HUB",
+  heading = "Discover the World Differently",
+  subtext = "Research-driven guides to remarkable places, unforgettable journeys, and stories worth exploring.",
+  imageUrl,
+  imageAlt = "A traveler looking out over mountains and a lake",
+  popularSearches = [
+    "Japan",
+    "Switzerland",
+    "Iceland",
+    "Italy",
+    "Thailand",
+    "Portugal",
+  ],
+} = Astro.props;
+---
+
+<section class="hero">
+  <Image
+    src={imageUrl}
+    alt={imageAlt}
+    width={1600}
+    height={700}
+    format="webp"
+    quality={80}
+    class="hero-bg"
+  />
+  <div class="hero-overlay"></div>
+
+  <div class="hero-content">
+    <p class="hero-eyebrow">{eyebrow}</p>
+    <h1 class="hero-heading">{heading}</h1>
+    <p class="hero-subtext">{subtext}</p>
+
+    <div class="hero-search">
+      <input
+        type="text"
+        placeholder="Search destinations, countries & travel guides..."
+        class="hero-search-input"
+      />
+      <button class="hero-search-btn" aria-label="Search">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"
+          ></circle>
+          <path
+            d="M16 16L12.5 12.5"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"></path>
+        </svg>
+      </button>
+    </div>
+
+    <div class="hero-popular">
+      <span>Popular searches:</span>
+      {
+        popularSearches.map((term: string) => (
+          <a href={`/search?q=${encodeURIComponent(term)}`} class="hero-tag">
+            {term}
+          </a>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    min-height: 480px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+  }
+
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+  }
+
+  .hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      rgba(20, 21, 21, 0.75) 0%,
+      rgba(20, 21, 21, 0.35) 55%,
+      rgba(20, 21, 21, 0.1) 100%
+    );
+    z-index: 1;
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: var(--space-xl) var(--space-md);
+    width: 100%;
+  }
+
+  .hero-eyebrow {
+    color: var(--color-accent);
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: var(--space-xs);
+  }
+
+  .hero-heading {
+    color: #ffffff;
+    font-size: 3rem;
+    max-width: 600px;
+    margin-bottom: var(--space-sm);
+  }
+
+  .hero-subtext {
+    color: rgba(255, 255, 255, 0.85);
+    max-width: 500px;
+    margin-bottom: var(--space-md);
+  }
+
+  .hero-search {
+    display: flex;
+    max-width: 600px;
+    background-color: #ffffff;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    margin-bottom: var(--space-sm);
+  }
+
+  .hero-search-input {
+    flex: 1;
+    border: none;
+    padding: 0.9rem 1.1rem;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    color: var(--color-text);
+    outline: none;
+  }
+
+  .hero-search-btn {
+    background-color: var(--color-button-bg);
+    color: var(--color-button-text);
+    border: none;
+    padding: 0 1.3rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .hero-popular {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+  }
+
+  .hero-popular > span {
+    color: rgba(255, 255, 255, 0.75);
+    margin-right: 0.2rem;
+  }
+
+  .hero-tag {
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.15);
+    padding: 0.3rem 0.8rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    transition: background-color 0.15s ease;
+  }
+
+  .hero-tag:hover {
+    background-color: rgba(255, 255, 255, 0.25);
+  }
+
+  @media (max-width: 700px) {
+    .hero-heading {
+      font-size: 2rem;
+    }
+  }
+</style>
