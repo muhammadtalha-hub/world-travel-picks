@@ -5,6 +5,7 @@ import ListingFilterBar from "../components/ListingFilterBar.astro";
 import Card from "../components/Card.astro";
 import ComingSoon from "../components/ComingSoon.astro";
 import { getArticlesBySection, getCardDisplayTags } from "../utils/articles";
+import heroDestinationsImage from "../assets/images/hero-destinations.jpg";
 
 const articles = await getArticlesBySection("Destinations");
 
@@ -22,6 +23,8 @@ const hasArticles = sortedArticles.length > 0;
     eyebrow="Destinations"
     heading="Explore the World"
     description="Discover countries, cities, and hidden gems around the globe. Research, plan, and be inspired for your next adventure."
+    imageUrl={heroDestinationsImage}
+    imageAlt="A scenic mountain landscape representing world destinations"
   />
 
   <ListingFilterBar />

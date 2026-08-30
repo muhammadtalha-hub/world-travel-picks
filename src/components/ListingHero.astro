@@ -1,15 +1,27 @@
 ---
-// Shared hero banner for all three listing pages (Destinations, Guides, Books).
-// Same visual structure everywhere — only the text and search action differ.
+import { Image } from "astro:assets";
 
-const {
-  eyebrow, // e.g. "DESTINATIONS"
-  heading, // e.g. "Explore the World"
-  description,
-} = Astro.props;
+const { eyebrow, heading, description, imageUrl, imageAlt = "" } = Astro.props;
 ---
 
 <section class="listing-hero">
+  {
+    imageUrl && (
+      <>
+        <Image
+          src={imageUrl}
+          alt={imageAlt}
+          width={1600}
+          height={500}
+          format="webp"
+          quality={80}
+          class="listing-hero-bg"
+        />
+        <div class="listing-hero-overlay" />
+      </>
+    )
+  }
+
   <div class="listing-hero-inner">
     <p class="listing-eyebrow">{eyebrow}</p>
     <h1>{heading}</h1>
@@ -19,11 +31,36 @@ const {
 
 <style>
   .listing-hero {
+    position: relative;
     background-color: var(--color-bg-dark);
     padding: var(--space-lg) var(--space-md);
+    overflow: hidden;
+  }
+
+  .listing-hero-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+  }
+
+  .listing-hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      rgba(20, 21, 21, 0.8) 0%,
+      rgba(20, 21, 21, 0.5) 60%,
+      rgba(20, 21, 21, 0.25) 100%
+    );
+    z-index: 1;
   }
 
   .listing-hero-inner {
+    position: relative;
+    z-index: 2;
     max-width: 1400px;
     margin: 0 auto;
   }

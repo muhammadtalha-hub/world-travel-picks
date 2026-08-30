@@ -5,6 +5,7 @@ import ListingFilterBar from "../components/ListingFilterBar.astro";
 import Card from "../components/Card.astro";
 import ComingSoon from "../components/ComingSoon.astro";
 import { getArticlesBySection, getCardDisplayTags } from "../utils/articles";
+import heroBooksImage from "../assets/images/hero-books.jpg";
 
 const articles = await getArticlesBySection("Books");
 
@@ -20,6 +21,8 @@ const hasArticles = sortedArticles.length > 0;
     eyebrow="Travel Books"
     heading="Books for Every Explorer"
     description="Curated travel books, inspiring stories, and practical guides to fuel your wanderlust and deepen your journeys."
+    imageUrl={heroBooksImage}
+    imageAlt="A stack of travel books, representing books for explorers"
   />
 
   <ListingFilterBar />

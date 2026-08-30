@@ -5,6 +5,7 @@ import ListingFilterBar from "../components/ListingFilterBar.astro";
 import Card from "../components/Card.astro";
 import ComingSoon from "../components/ComingSoon.astro";
 import { getArticlesBySection, getCardDisplayTags } from "../utils/articles";
+import heroGuidesImage from "../assets/images/hero-guides.jpg";
 
 const articles = await getArticlesBySection("Guides");
 
@@ -20,6 +21,8 @@ const hasArticles = sortedArticles.length > 0;
     eyebrow="Travel Guides"
     heading="Travel Guides for Every Journey"
     description="In-depth travel guides, itineraries, and expert tips to help you explore the world smarter."
+    imageUrl={heroGuidesImage}
+    imageAlt="A traveler consulting a map, representing travel guides"
   />
 
   <ListingFilterBar />
