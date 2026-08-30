@@ -4,6 +4,7 @@ import Hero from "../components/Hero.astro";
 import FeatureStrip from "../components/FeatureStrip.astro";
 import HomeFeaturedRow from "../components/HomeFeaturedRow.astro";
 import CardRow from "../components/CardRow.astro";
+import ExploreWorld from "../components/ExploreWorld.astro";
 import heroHomeImage from "../assets/images/hero-home.jpg";
 ---
 
@@ -65,10 +66,6 @@ import heroHomeImage from "../assets/images/hero-home.jpg";
 
     <CardRow heading="KDP Books Articles" viewAllHref="/books" items={[]} />
 
-    <p
-      style="padding: var(--space-xl); text-align: center; color: var(--color-text-muted);"
-    >
-      More homepage sections coming next.
-    </p>
+    <ExploreWorld />
   </main>
 </BaseLayout>

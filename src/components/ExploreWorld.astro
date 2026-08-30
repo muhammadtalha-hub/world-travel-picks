@@ -1,0 +1,295 @@
+---
+// Homepage "Explore the World" — infinite auto-scrolling marquee of country flags.
+// Auto-scrolls continuously, but the user can click-and-drag to manually scrub.
+// Dragging pauses the auto-scroll; releasing resumes it smoothly.
+
+const countries = [
+  { name: "Japan", flag: "🇯🇵" },
+  { name: "Italy", flag: "🇮🇹" },
+  { name: "Greece", flag: "🇬🇷" },
+  { name: "Switzerland", flag: "🇨🇭" },
+  { name: "Thailand", flag: "🇹🇭" },
+  { name: "Iceland", flag: "🇮🇸" },
+  { name: "Portugal", flag: "🇵🇹" },
+  { name: "Morocco", flag: "🇲🇦" },
+  { name: "France", flag: "🇫🇷" },
+  { name: "Spain", flag: "🇪🇸" },
+  { name: "Turkey", flag: "🇹🇷" },
+  { name: "Peru", flag: "🇵🇪" },
+  { name: "Australia", flag: "🇦🇺" },
+  { name: "Canada", flag: "🇨🇦" },
+  { name: "Germany", flag: "🇩🇪" },
+  { name: "Norway", flag: "🇳🇴" },
+  { name: "Sweden", flag: "🇸🇪" },
+  { name: "Finland", flag: "🇫🇮" },
+  { name: "Denmark", flag: "🇩🇰" },
+  { name: "Netherlands", flag: "🇳🇱" },
+  { name: "Belgium", flag: "🇧🇪" },
+  { name: "Austria", flag: "🇦🇹" },
+  { name: "Ireland", flag: "🇮🇪" },
+  { name: "Scotland", flag: "🏴" },
+  { name: "United Kingdom", flag: "🇬🇧" },
+  { name: "Croatia", flag: "🇭🇷" },
+  { name: "Slovenia", flag: "🇸🇮" },
+  { name: "Poland", flag: "🇵🇱" },
+  { name: "Czechia", flag: "🇨🇿" },
+  { name: "Hungary", flag: "🇭🇺" },
+  { name: "Romania", flag: "🇷🇴" },
+  { name: "Bulgaria", flag: "🇧🇬" },
+  { name: "Malta", flag: "🇲🇹" },
+  { name: "Cyprus", flag: "🇨🇾" },
+  { name: "Egypt", flag: "🇪🇬" },
+  { name: "South Africa", flag: "🇿🇦" },
+  { name: "Kenya", flag: "🇰🇪" },
+  { name: "Tanzania", flag: "🇹🇿" },
+  { name: "Namibia", flag: "🇳🇦" },
+  { name: "Botswana", flag: "🇧🇼" },
+  { name: "Rwanda", flag: "🇷🇼" },
+  { name: "Ghana", flag: "🇬🇭" },
+  { name: "Nigeria", flag: "🇳🇬" },
+  { name: "Tunisia", flag: "🇹🇳" },
+  { name: "Jordan", flag: "🇯🇴" },
+  { name: "United Arab Emirates", flag: "🇦🇪" },
+  { name: "Qatar", flag: "🇶🇦" },
+  { name: "Saudi Arabia", flag: "🇸🇦" },
+  { name: "India", flag: "🇮🇳" },
+  { name: "Nepal", flag: "🇳🇵" },
+  { name: "Sri Lanka", flag: "🇱🇰" },
+  { name: "Bhutan", flag: "🇧🇹" },
+  { name: "Bangladesh", flag: "🇧🇩" },
+  { name: "Vietnam", flag: "🇻🇳" },
+  { name: "Cambodia", flag: "🇰🇭" },
+  { name: "Laos", flag: "🇱🇦" },
+  { name: "Myanmar", flag: "🇲🇲" },
+  { name: "Indonesia", flag: "🇮🇩" },
+  { name: "Malaysia", flag: "🇲🇾" },
+  { name: "Singapore", flag: "🇸🇬" },
+  { name: "Philippines", flag: "🇵🇭" },
+  { name: "South Korea", flag: "🇰🇷" },
+  { name: "China", flag: "🇨🇳" },
+  { name: "Taiwan", flag: "🇹🇼" },
+  { name: "Mongolia", flag: "🇲🇳" },
+  { name: "Kazakhstan", flag: "🇰🇿" },
+  { name: "Georgia", flag: "🇬🇪" },
+  { name: "Armenia", flag: "🇦🇲" },
+  { name: "Azerbaijan", flag: "🇦🇿" },
+  { name: "Russia", flag: "🇷🇺" },
+  { name: "Ukraine", flag: "🇺🇦" },
+  { name: "Estonia", flag: "🇪🇪" },
+  { name: "Latvia", flag: "🇱🇻" },
+  { name: "Lithuania", flag: "🇱🇹" },
+  { name: "United States", flag: "🇺🇸" },
+  { name: "Mexico", flag: "🇲🇽" },
+  { name: "Costa Rica", flag: "🇨🇷" },
+  { name: "Panama", flag: "🇵🇦" },
+  { name: "Belize", flag: "🇧🇿" },
+  { name: "Guatemala", flag: "🇬🇹" },
+  { name: "Cuba", flag: "🇨🇺" },
+  { name: "Jamaica", flag: "🇯🇲" },
+  { name: "Dominican Republic", flag: "🇩🇴" },
+  { name: "Bahamas", flag: "🇧🇸" },
+  { name: "Brazil", flag: "🇧🇷" },
+  { name: "Argentina", flag: "🇦🇷" },
+  { name: "Chile", flag: "🇨🇱" },
+  { name: "Colombia", flag: "🇨🇴" },
+  { name: "Ecuador", flag: "🇪🇨" },
+  { name: "Bolivia", flag: "🇧🇴" },
+  { name: "Uruguay", flag: "🇺🇾" },
+  { name: "Paraguay", flag: "🇵🇾" },
+  { name: "New Zealand", flag: "🇳🇿" },
+  { name: "Fiji", flag: "🇫🇯" },
+  { name: "Samoa", flag: "🇼🇸" },
+  { name: "Maldives", flag: "🇲🇻" },
+  { name: "Seychelles", flag: "🇸🇨" },
+  { name: "Mauritius", flag: "🇲🇺" },
+  { name: "Madagascar", flag: "🇲🇬" },
+  { name: "Ethiopia", flag: "🇪🇹" },
+  { name: "Zambia", flag: "🇿🇲" },
+  { name: "Zimbabwe", flag: "🇿🇼" },
+  { name: "Uganda", flag: "🇺🇬" },
+  { name: "Senegal", flag: "🇸🇳" },
+];
+
+// Duplicated so the manual JS scroll loop can reset seamlessly (see script below).
+const loopedCountries = [...countries, ...countries];
+---
+
+<section class="explore-world">
+  <h2 class="explore-heading">
+    Explore the World
+    <span class="plane">✈️</span>
+  </h2>
+  <p class="explore-subtext">Ideas for your next adventure</p>
+
+  <div class="marquee-wrap" id="marquee-wrap">
+    <div class="marquee-track" id="marquee-track">
+      {
+        loopedCountries.map((country: { name: string; flag: string }) => (
+          <div class="country-item">
+            <span class="country-flag">{country.flag}</span>
+            <span class="country-name">{country.name}</span>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .explore-world {
+    padding: var(--space-xl) 0;
+    max-width: 1400px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .explore-heading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-xs);
+    margin-bottom: 0.2rem;
+    padding: 0 var(--space-md);
+  }
+
+  .plane {
+    font-size: 1.2rem;
+  }
+
+  .explore-subtext {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    margin-bottom: var(--space-md);
+    padding: 0 var(--space-md);
+  }
+
+  .marquee-wrap {
+    overflow: hidden;
+    width: 100%;
+    cursor: grab;
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      black 5%,
+      black 95%,
+      transparent
+    );
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent,
+      black 5%,
+      black 95%,
+      transparent
+    );
+  }
+
+  .marquee-wrap.dragging {
+    cursor: grabbing;
+  }
+
+  .marquee-track {
+    display: flex;
+    gap: var(--space-lg);
+    width: max-content;
+    will-change: transform;
+  }
+
+  .country-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+    flex-shrink: 0;
+    min-width: 70px;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .country-flag {
+    font-size: 1.8rem;
+  }
+
+  .country-name {
+    font-size: 0.8rem;
+    color: var(--color-text);
+    white-space: nowrap;
+  }
+</style>
+
+<script>
+  const wrap = document.getElementById("marquee-wrap");
+  const track = document.getElementById("marquee-track");
+
+  if (wrap && track) {
+    let position = 0;
+    let isDragging = false;
+    let startX = 0;
+    let startPosition = 0;
+    let autoScrollPaused = false;
+
+    // Half the track's width = width of ONE full (non-duplicated) list.
+    // Once we've scrolled past that point, we silently jump back by
+    // that same amount — since the second copy is identical, this
+    // jump is invisible to the eye, creating the infinite loop.
+    function getLoopWidth() {
+      return track.scrollWidth / 2;
+    }
+
+    function applyPosition() {
+      const loopWidth = getLoopWidth();
+      // Keep position within a safe looping range (handles both directions)
+      if (position <= -loopWidth) position += loopWidth;
+      if (position > 0) position -= loopWidth;
+      track.style.transform = `translateX(${position}px)`;
+    }
+
+    // Slow, continuous auto-scroll (reduced speed per request)
+    const SPEED = 0.35; // pixels per frame — lower is slower
+    function autoScrollStep() {
+      if (!isDragging && !autoScrollPaused) {
+        position -= SPEED;
+        applyPosition();
+      }
+      requestAnimationFrame(autoScrollStep);
+    }
+    requestAnimationFrame(autoScrollStep);
+
+    // --- Drag handling (mouse) ---
+    function startDrag(clientX: number) {
+      isDragging = true;
+      startX = clientX;
+      startPosition = position;
+      wrap.classList.add("dragging");
+    }
+
+    function duringDrag(clientX: number) {
+      if (!isDragging) return;
+      const delta = clientX - startX;
+      position = startPosition + delta;
+      applyPosition();
+    }
+
+    function endDrag() {
+      if (!isDragging) return;
+      isDragging = false;
+      wrap.classList.remove("dragging");
+    }
+
+    wrap.addEventListener("mousedown", (e) => startDrag(e.clientX));
+    window.addEventListener("mousemove", (e) => duringDrag(e.clientX));
+    window.addEventListener("mouseup", endDrag);
+
+    // --- Drag handling (touch, for mobile) ---
+    wrap.addEventListener(
+      "touchstart",
+      (e) => startDrag(e.touches[0].clientX),
+      { passive: true },
+    );
+    wrap.addEventListener(
+      "touchmove",
+      (e) => duringDrag(e.touches[0].clientX),
+      { passive: true },
+    );
+    wrap.addEventListener("touchend", endDrag);
+  }
+</script>
