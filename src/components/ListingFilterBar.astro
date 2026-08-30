@@ -1,0 +1,360 @@
+---
+const regions = [
+  "All Regions",
+  "Africa",
+  "Antarctica",
+  "Asia",
+  "Europe",
+  "North America",
+  "Oceania",
+  "South America",
+];
+
+const sortOptions = [
+  { value: "newest", label: "Sort: Newest" },
+  { value: "oldest", label: "Sort: Oldest" },
+];
+---
+
+<div class="listing-filter-bar">
+  <div class="filter-search">
+    <svg width="16" height="16" viewBox="0 0 18 18" fill="none">
+      <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"
+      ></circle>
+      <path
+        d="M16 16L12.5 12.5"
+        stroke="currentColor"
+        stroke-width="1.5"
+        stroke-linecap="round"></path>
+    </svg>
+    <input type="text" id="listing-search-input" placeholder="Search..." />
+  </div>
+
+  <div class="filter-dropdown" data-dropdown="region">
+    <button class="filter-dropdown-trigger" type="button">
+      <span id="region-selected-label">All Regions</span>
+      <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
+        <path
+          d="M1 1L5 5L9 1"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"></path>
+      </svg>
+    </button>
+    <div class="filter-dropdown-menu">
+      {
+        regions.map((region) => (
+          <button
+            class="filter-dropdown-item"
+            data-value={region}
+            type="button"
+          >
+            {region}
+          </button>
+        ))
+      }
+    </div>
+  </div>
+
+  <div class="filter-dropdown" data-dropdown="sort">
+    <button class="filter-dropdown-trigger" type="button">
+      <span id="sort-selected-label">Sort: Newest</span>
+      <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
+        <path
+          d="M1 1L5 5L9 1"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"></path>
+      </svg>
+    </button>
+    <div class="filter-dropdown-menu">
+      {
+        sortOptions.map((opt) => (
+          <button
+            class="filter-dropdown-item"
+            data-value={opt.value}
+            type="button"
+          >
+            {opt.label}
+          </button>
+        ))
+      }
+    </div>
+  </div>
+
+  <div class="view-toggle">
+    <span class="view-label">View:</span>
+    <button class="view-btn active" id="view-grid-btn" aria-label="Grid view">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <rect
+          x="1"
+          y="1"
+          width="6"
+          height="6"
+          rx="1"
+          stroke="currentColor"
+          stroke-width="1.3"></rect>
+        <rect
+          x="9"
+          y="1"
+          width="6"
+          height="6"
+          rx="1"
+          stroke="currentColor"
+          stroke-width="1.3"></rect>
+        <rect
+          x="1"
+          y="9"
+          width="6"
+          height="6"
+          rx="1"
+          stroke="currentColor"
+          stroke-width="1.3"></rect>
+        <rect
+          x="9"
+          y="9"
+          width="6"
+          height="6"
+          rx="1"
+          stroke="currentColor"
+          stroke-width="1.3"></rect>
+      </svg>
+    </button>
+    <button class="view-btn" id="view-list-btn" aria-label="List view">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path
+          d="M1 3H15M1 8H15M1 13H15"
+          stroke="currentColor"
+          stroke-width="1.3"
+          stroke-linecap="round"></path>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<style>
+  .listing-filter-bar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: var(--space-md) var(--space-md) 0;
+    flex-wrap: wrap;
+    position: relative;
+  }
+
+  .filter-search {
+    flex: 1;
+    min-width: 220px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    padding: 0.7rem 1.1rem;
+    color: var(--color-text-muted);
+    transition: border-color 0.15s ease;
+  }
+
+  .filter-search:focus-within {
+    border-color: var(--color-button-bg);
+  }
+
+  .filter-search input {
+    border: none;
+    outline: none;
+    background: none;
+    flex: 1;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    color: var(--color-text);
+  }
+
+  .filter-dropdown {
+    position: relative;
+  }
+
+  .filter-dropdown-trigger {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    padding: 0.7rem 1.1rem;
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--color-text);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: border-color 0.15s ease;
+  }
+
+  .filter-dropdown-trigger:hover,
+  .filter-dropdown.open .filter-dropdown-trigger {
+    border-color: var(--color-button-bg);
+  }
+
+  .filter-dropdown-trigger svg {
+    color: var(--color-text-muted);
+    transition: transform 0.15s ease;
+  }
+
+  .filter-dropdown.open .filter-dropdown-trigger svg {
+    transform: rotate(180deg);
+  }
+
+  .filter-dropdown-menu {
+    position: absolute;
+    top: calc(100% + var(--space-xs));
+    left: 0;
+    min-width: 180px;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    padding: var(--space-xs);
+    display: none;
+    flex-direction: column;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    z-index: 20;
+  }
+
+  .filter-dropdown.open .filter-dropdown-menu {
+    display: flex;
+  }
+
+  .filter-dropdown-item {
+    background: none;
+    border: none;
+    text-align: left;
+    color: var(--color-text);
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+  }
+
+  .filter-dropdown-item:hover {
+    background-color: var(--color-surface-secondary);
+  }
+
+  .filter-dropdown-item.selected {
+    color: var(--color-button-bg);
+    font-weight: 600;
+  }
+
+  .view-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .view-label {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    margin-right: 0.2rem;
+  }
+
+  .view-btn {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    color: var(--color-text-muted);
+    cursor: pointer;
+  }
+
+  .view-btn.active {
+    background-color: var(--color-surface-secondary);
+    color: var(--color-text);
+    border-color: var(--color-text-muted);
+  }
+</style>
+
+<script>
+  // --- Custom dropdowns (Region, Sort) ---
+  // Same open/close pattern as the Header's Books/Categories dropdowns.
+  const dropdowns = document.querySelectorAll(".filter-dropdown");
+
+  dropdowns.forEach((dropdown) => {
+    const trigger = dropdown.querySelector(".filter-dropdown-trigger");
+    const items = dropdown.querySelectorAll(".filter-dropdown-item");
+    const type = dropdown.getAttribute("data-dropdown"); // "region" or "sort"
+
+    trigger?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const isOpen = dropdown.classList.contains("open");
+      dropdowns.forEach((d) => d.classList.remove("open"));
+      if (!isOpen) dropdown.classList.add("open");
+    });
+
+    items.forEach((item) => {
+      item.addEventListener("click", () => {
+        const value = item.getAttribute("data-value") || "";
+        const label = item.textContent || "";
+
+        items.forEach((i) => i.classList.remove("selected"));
+        item.classList.add("selected");
+
+        const labelEl = document.getElementById(`${type}-selected-label`);
+        if (labelEl) labelEl.textContent = label;
+
+        dropdown.classList.remove("open");
+
+        if (type === "region") {
+          document.dispatchEvent(
+            new CustomEvent("listing-region-change", { detail: value }),
+          );
+        } else if (type === "sort") {
+          document.dispatchEvent(
+            new CustomEvent("listing-sort-change", { detail: value }),
+          );
+        }
+      });
+    });
+  });
+
+  document.addEventListener("click", () => {
+    dropdowns.forEach((d) => d.classList.remove("open"));
+  });
+
+  // --- Grid/List view toggle (unchanged) ---
+  const gridBtn = document.getElementById("view-grid-btn");
+  const listBtn = document.getElementById("view-list-btn");
+
+  gridBtn?.addEventListener("click", () => {
+    gridBtn.classList.add("active");
+    listBtn?.classList.remove("active");
+    document.dispatchEvent(
+      new CustomEvent("listing-view-change", { detail: "grid" }),
+    );
+  });
+
+  listBtn?.addEventListener("click", () => {
+    listBtn.classList.add("active");
+    gridBtn?.classList.remove("active");
+    document.dispatchEvent(
+      new CustomEvent("listing-view-change", { detail: "list" }),
+    );
+  });
+
+  // --- Search input (unchanged) ---
+  const searchInput = document.getElementById(
+    "listing-search-input",
+  ) as HTMLInputElement;
+  searchInput?.addEventListener("input", () => {
+    document.dispatchEvent(
+      new CustomEvent("listing-search-change", { detail: searchInput.value }),
+    );
+  });
+</script>

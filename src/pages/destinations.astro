@@ -1,0 +1,215 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import ListingHero from "../components/ListingHero.astro";
+import ListingFilterBar from "../components/ListingFilterBar.astro";
+import Card from "../components/Card.astro";
+import ComingSoon from "../components/ComingSoon.astro";
+import { getArticlesBySection, getCardDisplayTags } from "../utils/articles";
+
+const articles = await getArticlesBySection("Destinations");
+
+// Sort newest-first by default. The client-side script below re-sorts
+// when the visitor changes the Sort dropdown.
+const sortedArticles = [...articles].sort(
+  (a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf(),
+);
+
+const hasArticles = sortedArticles.length > 0;
+---
+
+<BaseLayout title="Destinations — World Travel Picks">
+  <ListingHero
+    eyebrow="Destinations"
+    heading="Explore the World"
+    description="Discover countries, cities, and hidden gems around the globe. Research, plan, and be inspired for your next adventure."
+  />
+
+  <ListingFilterBar />
+
+  <section class="listing-content">
+    {
+      hasArticles ? (
+        <>
+          <p class="listing-count" id="listing-count">
+            Showing {sortedArticles.length} of {sortedArticles.length}{" "}
+            destinations
+          </p>
+
+          <div class="listing-grid" id="listing-grid">
+            {sortedArticles.map((article) => (
+              <div
+                class="listing-card-wrap"
+                data-title={article.data.title.toLowerCase()}
+                data-tags={getCardDisplayTags(article).join(" ").toLowerCase()}
+                data-date={article.data.publishDate.toISOString()}
+              >
+                <Card
+                  image={article.data.coverImage}
+                  tag={getCardDisplayTags(article).join(" · ")}
+                  title={article.data.title}
+                  meta={`${article.data.readTime} · ${article.data.publishDate.toDateString()}`}
+                  href={`/articles/${article.id}`}
+                />
+              </div>
+            ))}
+          </div>
+
+          <p class="no-results-msg" id="no-results-msg" style="display: none;">
+            No destinations match your search.
+          </p>
+        </>
+      ) : (
+        <ComingSoon
+          title="Destinations Coming Soon"
+          message="We're researching amazing destinations for you. Check back soon!"
+        />
+      )
+    }
+  </section>
+</BaseLayout>
+
+<style>
+  .listing-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: var(--space-md);
+  }
+
+  .listing-count {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-sm);
+  }
+
+  .listing-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-sm);
+  }
+
+  .listing-grid.view-list {
+    grid-template-columns: 1fr;
+  }
+
+  .listing-grid.view-list .listing-card-wrap :global(.card) {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+  }
+
+  .listing-grid.view-list .listing-card-wrap :global(.card-image-wrap) {
+    width: 240px;
+    flex-shrink: 0;
+    aspect-ratio: auto;
+  }
+
+  .listing-grid.view-list .listing-card-wrap :global(.card-body) {
+    flex: 1;
+  }
+
+  @media (max-width: 700px) {
+    .listing-grid.view-list .listing-card-wrap :global(.card) {
+      flex-direction: column;
+    }
+    .listing-grid.view-list .listing-card-wrap :global(.card-image-wrap) {
+      width: 100%;
+    }
+  }
+
+  .no-results-msg {
+    text-align: center;
+    color: var(--color-text-muted);
+    padding: var(--space-xl) 0;
+  }
+
+  @media (max-width: 1100px) {
+    .listing-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 600px) {
+    .listing-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  // Listens for the events ListingFilterBar dispatches, and applies
+  // real search filtering + sorting to the cards already rendered above.
+  // (No re-fetching data — we just show/hide and reorder what's there.)
+
+  const grid = document.getElementById("listing-grid");
+  const countLabel = document.getElementById("listing-count");
+  const noResultsMsg = document.getElementById("no-results-msg");
+
+  function getCardWraps(): HTMLElement[] {
+    return grid ? Array.from(grid.querySelectorAll(".listing-card-wrap")) : [];
+  }
+
+  function applySearch(query: string) {
+    const cards = getCardWraps();
+    const lowerQuery = query.toLowerCase().trim();
+    let visibleCount = 0;
+
+    cards.forEach((card) => {
+      const title = card.dataset.title || "";
+      const tags = card.dataset.tags || "";
+      const matches =
+        !lowerQuery || title.includes(lowerQuery) || tags.includes(lowerQuery);
+      card.style.display = matches ? "" : "none";
+      if (matches) visibleCount++;
+    });
+
+    if (countLabel) {
+      countLabel.textContent = `Showing ${visibleCount} of ${cards.length} destinations`;
+    }
+    if (noResultsMsg) {
+      noResultsMsg.style.display = visibleCount === 0 ? "block" : "none";
+    }
+  }
+
+  function applySort(order: string) {
+    if (!grid) return;
+    const cards = getCardWraps();
+    cards.sort((a, b) => {
+      const dateA = new Date(a.dataset.date || "").getTime();
+      const dateB = new Date(b.dataset.date || "").getTime();
+      return order === "oldest" ? dateA - dateB : dateB - dateA;
+    });
+    cards.forEach((card) => grid.appendChild(card));
+  }
+
+  document.addEventListener("listing-search-change", ((e: CustomEvent) => {
+    applySearch(e.detail);
+  }) as EventListener);
+
+  document.addEventListener("listing-sort-change", ((e: CustomEvent) => {
+    applySort(e.detail);
+  }) as EventListener);
+
+  document.addEventListener("listing-region-change", ((e: CustomEvent) => {
+    const region = e.detail.toLowerCase();
+    const cards = getCardWraps();
+    let visibleCount = 0;
+
+    cards.forEach((card) => {
+      const tags = card.dataset.tags || "";
+      const matches = region === "all regions" || tags.includes(region);
+      card.style.display = matches ? "" : "none";
+      if (matches) visibleCount++;
+    });
+
+    if (countLabel) {
+      countLabel.textContent = `Showing ${visibleCount} of ${cards.length} destinations`;
+    }
+    if (noResultsMsg) {
+      noResultsMsg.style.display = visibleCount === 0 ? "block" : "none";
+    }
+  }) as EventListener);
+
+  document.addEventListener("listing-view-change", ((e: CustomEvent) => {
+    grid?.classList.toggle("view-list", e.detail === "list");
+  }) as EventListener);
+</script>
