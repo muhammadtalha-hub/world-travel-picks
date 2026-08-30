@@ -8,27 +8,30 @@
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Inter:wght@400;500;600;700&family=Caveat:wght@500;600&display=swap');
 
 :root {
-  /* --- Colors --- */
-  --color-bg: #FAF7F2;              /* warm off-white page background */
-  --color-bg-dark: #14161A;         /* dark navy/charcoal — header, footer, hero overlay */
-  --color-text: #14161A;            /* primary text — near-black */
-  --color-text-muted: #6B6F76;      /* secondary text, metadata, captions */
-  --color-text-on-dark: #F5F2EC;    /* text sitting on dark backgrounds */
+  /* --- Colors (Light theme) --- */
+  --color-bg: #F5F5F5;
+  --color-bg-dark: #141515;
+  --color-surface: #FAFAF5;
+  --color-surface-secondary: #F0F0EB;
 
-  --color-button-bg: #14161A;       /* solid button background */
-  --color-button-text: #FFFFFF;     /* solid button text */
+  --color-text: #20211F;
+  --color-text-strong: #141515;
+  --color-text-muted: #89867D;
+  --color-text-on-dark: #F5F2EB;
 
-  --color-accent: #F0E4D3;          /* warm beige/cream accent (tags, subtle highlights) */
-  --color-border: #E5E1D8;          /* thin subtle borders */
+  --color-button-bg: #596354;
+  --color-button-text: #FFFFFF;
+  --color-button-hover: #3F473C;
 
-  --color-surface: #FFFFFF;         /* card backgrounds */
+  --color-accent: #CBB995;
+  --color-border: #D8D8D2;
 
   /* --- Fonts --- */
   --font-heading: 'Fraunces', Georgia, serif;
   --font-body: 'Inter', -apple-system, sans-serif;
-  --font-accent: 'Caveat', cursive; /* rare, decorative use only */
+  --font-accent: 'Caveat', cursive;
 
-  /* --- Spacing scale (use these instead of random pixel values) --- */
+  /* --- Spacing scale --- */
   --space-xs: 0.5rem;
   --space-sm: 1rem;
   --space-md: 1.5rem;
@@ -42,23 +45,24 @@
   --radius-lg: 20px;
 }
 
-
 /* --- Dark mode overrides --- */
-/* Activated by adding data-theme="dark" to the <html> tag */
 :root[data-theme="dark"] {
-  --color-bg: #14161A;
-  --color-bg-dark: #0A0B0D;
-  --color-text: #F0EDE6;
-  --color-text-muted: #9A9DA3;
-  --color-text-on-dark: #F0EDE6;
+  --color-bg: #141515;
+  --color-bg-dark: #0A0B0B;
+  --color-surface: #20211F;
+  --color-surface-secondary: #1B1C1B;
 
-  --color-button-bg: #F0EDE6;
-  --color-button-text: #14161A;
+  --color-text: #F5F2EB;
+  --color-text-strong: #FFFFFF;
+  --color-text-muted: #89867D;
+  --color-text-on-dark: #F5F2EB;
 
-  --color-accent: #2A2D33;
-  --color-border: #2A2D33;
+  --color-button-bg: #596354;
+  --color-button-text: #FFFFFF;
+  --color-button-hover: #3F473C;
 
-  --color-surface: #1C1F24;
+  --color-accent: #CBB995;
+  --color-border: #343532;
 }
 
 /* Smooth transition when switching themes */

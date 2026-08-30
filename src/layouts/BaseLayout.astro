@@ -3,6 +3,7 @@
 // It defines the shared <head>, favicon, fonts, and global styles.
 
 import "../styles/global.css";
+import Header from "../components/Header.astro";
 
 const {
   title = "World Travel Picks",
@@ -36,6 +37,7 @@ const {
         localStorage.setItem("wtp-theme", newTheme);
       };
     </script>
+    <Header />
     <slot />
   </body>
 </html>
