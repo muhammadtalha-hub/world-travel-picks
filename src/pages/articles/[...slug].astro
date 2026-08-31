@@ -1,0 +1,801 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getCollection, render } from "astro:content";
+import {
+  getCardDisplayTags,
+  getArticlesBySection,
+  type Section,
+} from "../../utils/articles";
+
+// This function tells Astro exactly which pages to generate —
+// one for every article in our content collection.
+export async function getStaticPaths() {
+  const articles = await getCollection("articles", ({ data }) => !data.draft);
+  return articles.map((article) => ({
+    params: { slug: article.id },
+    props: { article },
+  }));
+}
+
+const { article } = Astro.props;
+const { Content, headings } = await render(article);
+
+const section = article.data.tags[0] as Section;
+const displayTags = getCardDisplayTags(article);
+
+// Related articles: same section, excluding this one, max 3.
+const sectionArticles = await getArticlesBySection(section);
+const relatedArticles = sectionArticles
+  .filter((a) => a.id !== article.id)
+  .slice(0, 3);
+
+// Breadcrumb label per section, matching the site's naming.
+const sectionLabels: Record<Section, string> = {
+  Destinations: "Destinations",
+  Guides: "Guides",
+  Books: "Books",
+};
+const sectionHref: Record<Section, string> = {
+  Destinations: "/destinations",
+  Guides: "/guides",
+  Books: "/books",
+};
+---
+
+<BaseLayout
+  title={`${article.data.title} — World Travel Picks`}
+  description={article.data.description}
+  image={article.data.coverImage}
+>
+  <div class="article-page">
+    <nav class="breadcrumbs">
+      <a href="/">Home</a>
+      <span>/</span>
+      <a href={sectionHref[section]}>{sectionLabels[section]}</a>
+      <span>/</span>
+      <span class="current">{article.data.title}</span>
+    </nav>
+
+    <div class="article-layout">
+      <main class="article-main">
+        {displayTags[0] && <span class="tag-pill">{displayTags[0]}</span>}
+        <h1>{article.data.title}</h1>
+        <p class="article-desc">{article.data.description}</p>
+
+        <div class="article-meta">
+          <span>{article.data.readTime}</span>
+          <span>·</span>
+          <span>{article.data.publishDate.toDateString()}</span>
+          <span>·</span>
+          <span>By {article.data.author}</span>
+        </div>
+
+        <div class="progress-track">
+          <div class="progress-fill" id="reading-progress-fill"></div>
+        </div>
+
+        <img
+          src={article.data.coverImage}
+          alt={article.data.title}
+          class="article-cover"
+        />
+
+        <div class="travel-info">
+          <div class="travel-info-item">
+            <span class="label">Best Time to Visit</span>
+            <span class="value">Mar – May, Sep – Nov</span>
+          </div>
+          <div class="travel-info-item">
+            <span class="label">Language</span>
+            <span class="value">Local language</span>
+          </div>
+          <div class="travel-info-item">
+            <span class="label">Currency</span>
+            <span class="value">Local currency</span>
+          </div>
+          <div class="travel-info-item">
+            <span class="label">Time Zone</span>
+            <span class="value">Check locally</span>
+          </div>
+        </div>
+
+        <div class="travel-tip">
+          <span class="tip-icon">💡</span>
+          <p>
+            <strong>Travel Tip:</strong> Research local customs and transportation
+            options before you go — it'll save you time and make your trip smoother.
+          </p>
+        </div>
+
+        <div class="article-body">
+          <Content />
+        </div>
+
+        <div class="prev-next-row">
+          {
+            relatedArticles[0] && (
+              <a
+                href={`/articles/${relatedArticles[0].id}`}
+                class="prev-next-link prev"
+              >
+                <span>← Previous Article</span>
+                <strong>{relatedArticles[0].data.title}</strong>
+              </a>
+            )
+          }
+          {
+            relatedArticles[1] && (
+              <a
+                href={`/articles/${relatedArticles[1].id}`}
+                class="prev-next-link next"
+              >
+                <span>Next Article →</span>
+                <strong>{relatedArticles[1].data.title}</strong>
+              </a>
+            )
+          }
+        </div>
+      </main>
+
+      <aside class="article-sidebar">
+        <div class="sidebar-box author-box">
+          <h4>About the Author</h4>
+          <div class="accordion-content">
+            <div class="author-row">
+              <div class="author-avatar">{article.data.author.charAt(0)}</div>
+              <div>
+                <strong>{article.data.author}</strong>
+                <p>Sharing research-driven travel stories and guides.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {
+          headings.length > 0 && (
+            <div class="sidebar-box toc-box">
+              <h4>Table of Contents</h4>
+              <nav id="toc-nav">
+                {headings
+                  .filter((h) => h.depth === 2)
+                  .map((heading, i) => (
+                    <a href={`#${heading.slug}`} data-slug={heading.slug}>
+                      {String(i + 1).padStart(2, "0")}. {heading.text}
+                    </a>
+                  ))}
+              </nav>
+            </div>
+          )
+        }
+
+        <div class="sidebar-box share-box">
+          <h4>Share this article</h4>
+          <div class="accordion-content">
+            <div class="share-icons">
+              <a
+                href="#"
+                class="share-icon"
+                id="share-whatsapp"
+                aria-label="Share on WhatsApp"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  ><path
+                    d="M17.5 14.4c-.3-.1-1.7-.9-2-1-.3-.1-.5-.1-.6.1-.2.3-.7 1-.9 1.1-.1.2-.3.2-.6.1-.3-.2-1.2-.5-2.3-1.5-.9-.8-1.4-1.7-1.6-2-.2-.3 0-.5.1-.6l.4-.5c.1-.1.2-.3.2-.4.1-.2 0-.3 0-.5l-.9-2.1c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.5.1-.7.3-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 4.9 4.3.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.5-.1 1.7-.7 2-1.4.2-.7.2-1.2.2-1.4 0-.1-.2-.2-.5-.3ZM12 2a10 10 0 0 0-8.6 15L2 22l5.1-1.3A10 10 0 1 0 12 2Zm0 18.2c-1.6 0-3.1-.4-4.4-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 20.2 12 8.2 8.2 0 0 1 12 20.2Z"
+                  ></path></svg
+                >
+              </a>
+              <a
+                href="#"
+                class="share-icon"
+                id="share-facebook"
+                aria-label="Share on Facebook"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  ><path
+                    d="M22 12a10 10 0 1 0-11.6 9.9v-7H7.9V12h2.5V9.8c0-2.5 1.5-3.9 3.8-3.9 1.1 0 2.2.2 2.2.2v2.4h-1.3c-1.2 0-1.6.8-1.6 1.6V12h2.8l-.4 2.9h-2.4v7A10 10 0 0 0 22 12Z"
+                  ></path></svg
+                >
+              </a>
+              <a
+                href="#"
+                class="share-icon"
+                id="share-pinterest"
+                aria-label="Share on Pinterest"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  ><path
+                    d="M12 2a10 10 0 0 0-3.6 19.3c0-.8-.1-2 .1-2.8l1.3-5.5s-.3-.7-.3-1.6c0-1.5.9-2.7 2-2.7.9 0 1.4.7 1.4 1.6 0 1-.6 2.4-1 3.7-.2 1 .5 1.9 1.6 1.9 1.9 0 3.2-2.4 3.2-5.3 0-2.2-1.5-3.8-4.1-3.8-3 0-4.9 2.2-4.9 4.7 0 .8.3 1.4.7 1.9.2.2.2.3.1.5l-.3.9c0 .2-.2.3-.4.2-1.1-.5-1.7-1.9-1.7-3.4 0-2.5 2.1-5.5 6.2-5.5 3.3 0 5.5 2.4 5.5 4.9 0 3.4-1.9 5.9-4.6 5.9-.9 0-1.8-.5-2.1-1l-.6 2.2c-.2.8-.6 1.7-1 2.3.9.3 1.8.4 2.8.4a10 10 0 0 0 0-20Z"
+                  ></path></svg
+                >
+              </a>
+              <a
+                href="#"
+                class="share-icon"
+                id="share-x"
+                aria-label="Share on X"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  ><path
+                    d="M18.9 2h3.3l-7.2 8.2L23.5 22h-6.6l-5.2-6.8L5.7 22H2.4l7.7-8.8L1.5 2h6.8l4.7 6.2L18.9 2Zm-1.2 18h1.8L7.1 3.9H5.2L17.7 20Z"
+                  ></path></svg
+                >
+              </a>
+              <button
+                class="share-icon"
+                id="share-copy"
+                aria-label="Copy link"
+                type="button"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  ><rect x="9" y="9" width="12" height="12" rx="2"></rect><path
+                    d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
+                  ></path></svg
+                >
+              </button>
+              <button
+                class="share-icon"
+                id="share-native"
+                aria-label="Share"
+                type="button"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  ><circle cx="18" cy="5" r="3"></circle><circle
+                    cx="6"
+                    cy="12"
+                    r="3"></circle><circle cx="18" cy="19" r="3"></circle><path
+                    d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"></path></svg
+                >
+              </button>
+            </div>
+            <span id="copy-confirm" class="copy-confirm">Link copied!</span>
+          </div>
+        </div>
+
+        {
+          relatedArticles.length > 0 && (
+            <div class="sidebar-box related-box">
+              <h4>Related Articles</h4>
+              <div class="accordion-content">
+                <div class="related-list">
+                  {relatedArticles.map((related) => (
+                    <a href={`/articles/${related.id}`} class="related-item">
+                      <img
+                        src={related.data.coverImage}
+                        alt={related.data.title}
+                      />
+                      <div>
+                        <span>{related.data.title}</span>
+                        <small>{related.data.readTime}</small>
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )
+        }
+      </aside>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .article-page {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: var(--space-md);
+  }
+
+  .breadcrumbs {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-md);
+  }
+
+  .breadcrumbs a {
+    color: var(--color-text-muted);
+  }
+  .breadcrumbs a:hover {
+    color: var(--color-text);
+  }
+  .breadcrumbs .current {
+    color: var(--color-text);
+  }
+
+  .article-layout {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: var(--space-lg);
+    align-items: start;
+  }
+
+  .tag-pill {
+    display: inline-block;
+    background-color: var(--color-accent);
+    color: var(--color-text-strong);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 0.25rem 0.6rem;
+    border-radius: var(--radius-sm);
+    margin-bottom: var(--space-xs);
+  }
+
+  .article-main h1 {
+    font-size: 2rem;
+    margin-bottom: var(--space-xs);
+  }
+  .article-desc {
+    color: var(--color-text-muted);
+    font-size: 1rem;
+    margin-bottom: var(--space-sm);
+  }
+
+  .article-meta {
+    display: flex;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-sm);
+  }
+
+  .progress-track {
+    height: 4px;
+    background-color: var(--color-border);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: var(--space-md);
+  }
+
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    background-color: var(--color-button-bg);
+    transition: width 0.1s ease;
+  }
+
+  .article-cover {
+    width: 100%;
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-md);
+  }
+
+  .article-body {
+    font-size: 1rem;
+    line-height: 1.75;
+  }
+  .article-body :global(h2) {
+    font-size: 1.4rem;
+    margin-top: var(--space-lg);
+  }
+  .article-body :global(p) {
+    color: var(--color-text);
+    margin-bottom: var(--space-sm);
+  }
+
+  /* Blockquotes (pull quotes) — theme-aware, both light & dark */
+  .article-body :global(blockquote) {
+    background-color: var(--color-surface-secondary);
+    border-left: 3px solid var(--color-accent);
+    border-radius: var(--radius-sm);
+    padding: var(--space-sm) var(--space-md);
+    margin: var(--space-md) 0;
+    font-family: var(--font-heading);
+    font-style: italic;
+    font-size: 1.1rem;
+    color: var(--color-text);
+  }
+
+  .article-body :global(blockquote p) {
+    margin: 0;
+  }
+
+  /* Travel Tip callout box */
+  .travel-tip {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-sm);
+    background-color: var(--color-surface-secondary);
+    border-radius: var(--radius-md);
+    padding: var(--space-sm) var(--space-md);
+    margin: var(--space-md) 0;
+    font-size: 0.9rem;
+  }
+
+  .travel-tip .tip-icon {
+    flex-shrink: 0;
+    font-size: 1.2rem;
+  }
+  .travel-tip strong {
+    color: var(--color-text-strong);
+  }
+  .travel-tip p {
+    margin: 0;
+    color: var(--color-text);
+  }
+
+  /* Travel Info box (Best Time, Language, Currency, Time Zone) */
+  .travel-info {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-sm);
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-sm) var(--space-md);
+    margin: var(--space-md) 0;
+  }
+
+  .travel-info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+  .travel-info-item .label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--color-text-muted);
+  }
+  .travel-info-item .value {
+    font-size: 0.85rem;
+    color: var(--color-text);
+  }
+
+  @media (max-width: 600px) {
+    .travel-info {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .prev-next-row {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-md);
+    margin-top: var(--space-lg);
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .prev-next-link {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    max-width: 45%;
+  }
+  .prev-next-link.next {
+    text-align: right;
+    margin-left: auto;
+  }
+  .prev-next-link span {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+  }
+  .prev-next-link strong {
+    font-size: 0.9rem;
+    color: var(--color-text);
+  }
+
+  /* --- Sidebar (desktop) --- */
+  .article-sidebar {
+    position: sticky;
+    top: calc(var(--space-md) + 60px);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .sidebar-box {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+  }
+
+  .sidebar-box h4 {
+    font-size: 0.9rem;
+    margin-bottom: var(--space-sm);
+  }
+
+  .author-row {
+    display: flex;
+    gap: var(--space-sm);
+    align-items: flex-start;
+  }
+  .author-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: var(--color-button-bg);
+    color: var(--color-button-text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .author-row strong {
+    font-size: 0.85rem;
+    display: block;
+    margin-bottom: 0.2rem;
+  }
+  .author-row p {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+
+  .toc-box nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .toc-box nav a {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+  }
+  .toc-box nav a:hover,
+  .toc-box nav a.active {
+    color: var(--color-accent);
+    font-weight: 600;
+  }
+
+  .share-icons {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .copy-confirm {
+    display: none;
+    font-size: 0.8rem;
+    color: var(--color-button-bg);
+    margin-top: 0.5rem;
+  }
+
+  .copy-confirm.show {
+    display: block;
+  }
+  .share-icon {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-surface-secondary);
+    border-radius: 50%;
+    color: var(--color-text);
+  }
+
+  .related-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+  .related-item {
+    display: flex;
+    gap: var(--space-xs);
+    align-items: center;
+  }
+  .related-item img {
+    width: 56px;
+    height: 56px;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+    flex-shrink: 0;
+  }
+  .related-item span {
+    font-size: 0.82rem;
+    color: var(--color-text);
+    font-weight: 600;
+    display: block;
+  }
+  .related-item small {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+  }
+
+  /* --- Mobile: sidebar becomes accordions below the article --- */
+  @media (max-width: 950px) {
+    .article-layout {
+      grid-template-columns: 1fr;
+    }
+
+    .article-sidebar {
+      position: static;
+    }
+
+    /* TOC is explicitly dropped on mobile, per instructions */
+    .toc-box {
+      display: none;
+    }
+
+    .sidebar-box {
+      border: none;
+      border-top: 1px solid var(--color-border);
+      border-radius: 0;
+      padding: var(--space-sm) 0;
+    }
+
+    .sidebar-box h4 {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      margin-bottom: 0;
+    }
+
+    .sidebar-box h4::after {
+      content: "›";
+      font-size: 1.3rem;
+      transform: rotate(90deg);
+      transition: transform 0.2s ease;
+    }
+
+    .sidebar-box.open h4::after {
+      transform: rotate(270deg);
+    }
+
+    .sidebar-box .accordion-content {
+      display: none;
+      margin-top: var(--space-sm);
+    }
+
+    .sidebar-box.open .accordion-content {
+      display: block;
+    }
+  }
+</style>
+
+<script>
+  // Reading progress bar
+  const progressFill = document.getElementById("reading-progress-fill");
+
+  function updateProgress() {
+    const scrollTop = window.scrollY;
+    const docHeight =
+      document.documentElement.scrollHeight - window.innerHeight;
+    const percent = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+    if (progressFill) {
+      progressFill.style.width = `${Math.min(percent, 100)}%`;
+    }
+  }
+
+  // Highlights the current section in the Table of Contents as you scroll
+  function updateActiveToc() {
+    const headings = document.querySelectorAll(".article-body h2[id]");
+    const tocLinks = document.querySelectorAll("#toc-nav a");
+    let currentSlug = "";
+
+    headings.forEach((heading) => {
+      const rect = heading.getBoundingClientRect();
+      if (rect.top < 150) {
+        currentSlug = heading.id;
+      }
+    });
+
+    tocLinks.forEach((link) => {
+      link.classList.toggle(
+        "active",
+        link.getAttribute("data-slug") === currentSlug,
+      );
+    });
+  }
+
+  window.addEventListener("scroll", () => {
+    updateProgress();
+    updateActiveToc();
+  });
+  updateProgress();
+  updateActiveToc();
+
+  // Mobile accordion toggles (Author / Share / Related sidebar boxes)
+  document.querySelectorAll(".sidebar-box").forEach((box) => {
+    const heading = box.querySelector("h4");
+    heading?.addEventListener("click", () => {
+      if (window.innerWidth <= 950) {
+        box.classList.toggle("open");
+      }
+    });
+  });
+
+  // --- Real sharing functionality ---
+  const pageUrl = window.location.href;
+  const pageTitle = document.title;
+
+  const whatsappBtn = document.getElementById("share-whatsapp");
+  if (whatsappBtn) {
+    whatsappBtn.setAttribute(
+      "href",
+      `https://wa.me/?text=${encodeURIComponent(pageTitle + " " + pageUrl)}`,
+    );
+    whatsappBtn.setAttribute("target", "_blank");
+    whatsappBtn.setAttribute("rel", "noopener noreferrer");
+  }
+
+  const facebookBtn = document.getElementById("share-facebook");
+  if (facebookBtn) {
+    facebookBtn.setAttribute(
+      "href",
+      `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(pageUrl)}`,
+    );
+    facebookBtn.setAttribute("target", "_blank");
+    facebookBtn.setAttribute("rel", "noopener noreferrer");
+  }
+
+  const pinterestBtn = document.getElementById("share-pinterest");
+  if (pinterestBtn) {
+    const coverImg = document.querySelector(
+      ".article-cover",
+    ) as HTMLImageElement;
+    const imageUrl = coverImg?.src || "";
+    pinterestBtn.setAttribute(
+      "href",
+      `https://pinterest.com/pin/create/button/?url=${encodeURIComponent(pageUrl)}&media=${encodeURIComponent(imageUrl)}&description=${encodeURIComponent(pageTitle)}`,
+    );
+    pinterestBtn.setAttribute("target", "_blank");
+    pinterestBtn.setAttribute("rel", "noopener noreferrer");
+  }
+
+  const xBtn = document.getElementById("share-x");
+  if (xBtn) {
+    xBtn.setAttribute(
+      "href",
+      `https://twitter.com/intent/tweet?text=${encodeURIComponent(pageTitle)}&url=${encodeURIComponent(pageUrl)}`,
+    );
+    xBtn.setAttribute("target", "_blank");
+    xBtn.setAttribute("rel", "noopener noreferrer");
+  }
+
+  const copyBtn = document.getElementById("share-copy");
+  const copyConfirm = document.getElementById("copy-confirm");
+  copyBtn?.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(pageUrl);
+      copyConfirm?.classList.add("show");
+      setTimeout(() => copyConfirm?.classList.remove("show"), 2000);
+    } catch (err) {
+      console.error("Could not copy link:", err);
+    }
+  });
+
+  // Native share button — only show it if the browser/device actually supports it
+  // (mainly mobile devices; most desktop browsers don't have this).
+  const nativeBtn = document.getElementById("share-native");
+  if (nativeBtn) {
+    if (navigator.share) {
+      nativeBtn.addEventListener("click", () => {
+        navigator.share({ title: pageTitle, url: pageUrl }).catch(() => {});
+      });
+    } else {
+      nativeBtn.style.display = "none";
+    }
+  }
+</script>

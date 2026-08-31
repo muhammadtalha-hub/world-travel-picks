@@ -8,4 +8,16 @@ readTime: "8 min read"
 tags: ["Destinations", "Asia", "Japan"]
 ---
 
-Full article content will go here. This is placeholder body text for testing the tag and sorting system.
+Japan is a country where tradition and modernity coexist beautifully. Whether you're a first-time visitor or a returning traveler, these incredible destinations will leave you amazed.
+
+## Tokyo – The Modern Metropolis
+
+Tokyo, the capital of Japan, is a vibrant city blending cutting-edge technology with rich culture. From the neon lights of Shibuya to the historic Senso-ji Temple, Tokyo has something for everyone.
+
+## Kyoto – The Cultural Heart
+
+Kyoto is famous for its well-preserved temples, traditional tea houses, and beautiful geisha districts. It's the perfect place to experience the timeless beauty of Japan.
+
+## Hakone – Nature & Relaxation
+
+Just a short trip from Tokyo, Hakone is known for its hot springs, stunning views of Mount Fuji, and peaceful lakes.
