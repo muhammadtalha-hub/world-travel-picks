@@ -25,7 +25,7 @@ const hasArticles = sortedArticles.length > 0;
     imageAlt="A stack of travel books, representing books for explorers"
   />
 
-  <ListingFilterBar />
+  <ListingFilterBar showSeries={true} />
 
   <section class="listing-content">
     {
@@ -207,6 +207,21 @@ const hasArticles = sortedArticles.length > 0;
 
   document.addEventListener("listing-region-change", ((e: CustomEvent) => {
     applyRegion(e.detail);
+  }) as EventListener);
+
+  document.addEventListener("listing-series-change", ((e: CustomEvent) => {
+    const series = e.detail.toLowerCase();
+    const cards = getCardWraps();
+    let visibleCount = 0;
+
+    cards.forEach((card) => {
+      const tags = card.dataset.tags || "";
+      const matches = series === "all series" || tags.includes(series);
+      card.style.display = matches ? "" : "none";
+      if (matches) visibleCount++;
+    });
+
+    updateCount(visibleCount, cards.length);
   }) as EventListener);
 
   document.addEventListener("listing-view-change", ((e: CustomEvent) => {

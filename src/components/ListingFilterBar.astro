@@ -10,6 +10,16 @@ const regions = [
   "South America",
 ];
 
+const seriesOptions = [
+  "All Series",
+  "Kids Adventure Series",
+  "Explorer Series",
+];
+
+// Only the Books page passes this prop — Region always shows, Series
+// only shows when explicitly requested.
+const { showSeries = false } = Astro.props;
+
 const sortOptions = [
   { value: "newest", label: "Sort: Newest" },
   { value: "oldest", label: "Sort: Oldest" },
@@ -56,6 +66,32 @@ const sortOptions = [
       }
     </div>
   </div>
+
+  {
+    showSeries && (
+      <div class="filter-dropdown" data-dropdown="series">
+        <button class="filter-dropdown-trigger" type="button">
+          <span id="series-selected-label">All Series</span>
+          <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
+            <path
+              d="M1 1L5 5L9 1"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
+        <div class="filter-dropdown-menu">
+          {seriesOptions.map((s) => (
+            <button class="filter-dropdown-item" data-value={s} type="button">
+              {s}
+            </button>
+          ))}
+        </div>
+      </div>
+    )
+  }
 
   <div class="filter-dropdown" data-dropdown="sort">
     <button class="filter-dropdown-trigger" type="button">
@@ -318,6 +354,10 @@ const sortOptions = [
         } else if (type === "sort") {
           document.dispatchEvent(
             new CustomEvent("listing-sort-change", { detail: value }),
+          );
+        } else if (type === "series") {
+          document.dispatchEvent(
+            new CustomEvent("listing-series-change", { detail: value }),
           );
         }
       });
