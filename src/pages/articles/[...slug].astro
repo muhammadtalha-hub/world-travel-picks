@@ -80,32 +80,51 @@ const sectionHref: Record<Section, string> = {
           class="article-cover"
         />
 
-        <div class="travel-info">
-          <div class="travel-info-item">
-            <span class="label">Best Time to Visit</span>
-            <span class="value">Mar – May, Sep – Nov</span>
-          </div>
-          <div class="travel-info-item">
-            <span class="label">Language</span>
-            <span class="value">Local language</span>
-          </div>
-          <div class="travel-info-item">
-            <span class="label">Currency</span>
-            <span class="value">Local currency</span>
-          </div>
-          <div class="travel-info-item">
-            <span class="label">Time Zone</span>
-            <span class="value">Check locally</span>
-          </div>
-        </div>
+        {
+          section !== "Books" && article.data.quickFacts && (
+            <div class="travel-info">
+              {article.data.quickFacts.bestTimeToVisit && (
+                <div class="travel-info-item">
+                  <span class="label">Best Time to Visit</span>
+                  <span class="value">
+                    {article.data.quickFacts.bestTimeToVisit}
+                  </span>
+                </div>
+              )}
+              {article.data.quickFacts.language && (
+                <div class="travel-info-item">
+                  <span class="label">Language</span>
+                  <span class="value">{article.data.quickFacts.language}</span>
+                </div>
+              )}
+              {article.data.quickFacts.currency && (
+                <div class="travel-info-item">
+                  <span class="label">Currency</span>
+                  <span class="value">{article.data.quickFacts.currency}</span>
+                </div>
+              )}
+              {article.data.quickFacts.timeZone && (
+                <div class="travel-info-item">
+                  <span class="label">Time Zone</span>
+                  <span class="value">{article.data.quickFacts.timeZone}</span>
+                </div>
+              )}
+            </div>
+          )
+        }
 
-        <div class="travel-tip">
-          <span class="tip-icon">💡</span>
-          <p>
-            <strong>Travel Tip:</strong> Research local customs and transportation
-            options before you go — it'll save you time and make your trip smoother.
-          </p>
-        </div>
+        {
+          section !== "Books" && (
+            <div class="travel-tip">
+              <span class="tip-icon">💡</span>
+              <p>
+                <strong>Travel Tip:</strong> Research local customs and
+                transportation options before you go — it'll save you time and
+                make your trip smoother.
+              </p>
+            </div>
+          )
+        }
 
         <div class="article-body">
           <Content />

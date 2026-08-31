@@ -22,6 +22,15 @@ const articles = defineCollection({
     readTime: z.string(),
     tags: z.array(z.string()).min(2),
     draft: z.boolean().default(false),
+    // Optional per-article Quick Facts box. Entirely optional — if an
+    // article doesn't include this, the box simply doesn't render.
+    // Whoever writes the article decides if/what to fill in.
+    quickFacts: z.object({
+      bestTimeToVisit: z.string().optional(),
+      language: z.string().optional(),
+      currency: z.string().optional(),
+      timeZone: z.string().optional(),
+    }).optional(),
   }),
 });
 
