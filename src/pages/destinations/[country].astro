@@ -1,0 +1,312 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+import { getCardDisplayTags } from "../../utils/articles";
+
+// One page per unique country name found anywhere in tags[1] or tags[2]
+// across ALL articles (Destinations, Guides, and Books alike) — this is
+// what makes the page fully automatic, with nothing to maintain by hand.
+export async function getStaticPaths() {
+  const allArticles = await getCollection(
+    "articles",
+    ({ data }) => !data.draft,
+  );
+
+  const countryNames = new Set<string>();
+  allArticles.forEach((article) => {
+    // Only tag positions 1 and 2 count as "country/place" tags per our
+    // locked tag rules — tag[0] is the section, not a place.
+    [article.data.tags[1], article.data.tags[2]].forEach((tag) => {
+      if (tag) countryNames.add(tag);
+    });
+  });
+
+  return Array.from(countryNames).map((country) => ({
+    params: { country: country.toLowerCase().replace(/\s+/g, "-") },
+    props: { countryName: country },
+  }));
+}
+
+const { countryName } = Astro.props;
+
+const allArticles = await getCollection("articles", ({ data }) => !data.draft);
+
+// Every article that mentions this country ANYWHERE in its tags —
+// crossing section boundaries on purpose, same principle as global search.
+const countryArticles = allArticles.filter((article) =>
+  article.data.tags.some(
+    (tag) => tag.toLowerCase() === countryName.toLowerCase(),
+  ),
+);
+
+const destinationArticles = countryArticles.filter(
+  (a) => a.data.tags[0] === "Destinations",
+);
+const guideArticles = countryArticles.filter(
+  (a) => a.data.tags[0] === "Guides",
+);
+const bookArticles = countryArticles.filter((a) => a.data.tags[0] === "Books");
+
+// Cities/regions mentioned for this country — anything in tag position 2
+// while tag position 1 matches this country (e.g. Germany → Bavaria).
+const relatedPlaces = new Set<string>();
+countryArticles.forEach((article) => {
+  const tags = article.data.tags;
+  if (tags[1]?.toLowerCase() === countryName.toLowerCase() && tags[2]) {
+    relatedPlaces.add(tags[2]);
+  }
+});
+
+const coverImage = countryArticles[0]?.data.coverImage || "";
+---
+
+<BaseLayout
+  title={`${countryName} — World Travel Picks`}
+  description={`Discover ${countryName}: destinations, guides, and travel stories.`}
+  image={coverImage}
+>
+  <div class="country-page">
+    <nav class="breadcrumbs">
+      <a href="/">Home</a>
+      <span>/</span>
+      <a href="/destinations">Destinations</a>
+      <span>/</span>
+      <span class="current">{countryName}</span>
+    </nav>
+
+    {
+      coverImage && (
+        <img src={coverImage} alt={countryName} class="country-hero-img" />
+      )
+    }
+
+    <h1>{countryName}</h1>
+    <p class="country-summary">
+      Explore {countryArticles.length}
+      {countryArticles.length === 1 ? "story" : "stories"} about {countryName},
+      from destination guides to in-depth travel articles.
+    </p>
+
+    {
+      relatedPlaces.size > 0 && (
+        <div class="places-row">
+          <span class="places-label">Explore:</span>
+          {Array.from(relatedPlaces).map((place) => (
+            <span class="place-pill">{place}</span>
+          ))}
+        </div>
+      )
+    }
+
+    {
+      destinationArticles.length > 0 && (
+        <section class="country-section">
+          <h2>Destinations in {countryName}</h2>
+          <div class="country-grid">
+            {destinationArticles.map((article) => (
+              <a href={`/articles/${article.id}`} class="country-card">
+                <img src={article.data.coverImage} alt={article.data.title} />
+                <div class="country-card-body">
+                  <span class="tag-pill">
+                    {getCardDisplayTags(article).join(" · ")}
+                  </span>
+                  <h3>{article.data.title}</h3>
+                  <p>{article.data.readTime}</p>
+                </div>
+              </a>
+            ))}
+          </div>
+        </section>
+      )
+    }
+
+    {
+      guideArticles.length > 0 && (
+        <section class="country-section">
+          <h2>Guides for {countryName}</h2>
+          <div class="country-grid">
+            {guideArticles.map((article) => (
+              <a href={`/articles/${article.id}`} class="country-card">
+                <img src={article.data.coverImage} alt={article.data.title} />
+                <div class="country-card-body">
+                  <span class="tag-pill">
+                    {getCardDisplayTags(article).join(" · ")}
+                  </span>
+                  <h3>{article.data.title}</h3>
+                  <p>{article.data.readTime}</p>
+                </div>
+              </a>
+            ))}
+          </div>
+        </section>
+      )
+    }
+
+    {
+      bookArticles.length > 0 && (
+        <section class="country-section">
+          <h2>Books set in {countryName}</h2>
+          <div class="country-grid">
+            {bookArticles.map((article) => (
+              <a href={`/articles/${article.id}`} class="country-card">
+                <img src={article.data.coverImage} alt={article.data.title} />
+                <div class="country-card-body">
+                  <span class="tag-pill">
+                    {getCardDisplayTags(article).join(" · ")}
+                  </span>
+                  <h3>{article.data.title}</h3>
+                  <p>{article.data.readTime}</p>
+                </div>
+              </a>
+            ))}
+          </div>
+        </section>
+      )
+    }
+
+    {
+      countryArticles.length === 0 && (
+        <p class="no-content-msg">
+          No content for {countryName} yet. Check back soon!
+        </p>
+      )
+    }
+  </div>
+</BaseLayout>
+
+<style>
+  .country-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--space-md);
+  }
+
+  .breadcrumbs {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-md);
+  }
+
+  .breadcrumbs a {
+    color: var(--color-text-muted);
+  }
+  .breadcrumbs a:hover {
+    color: var(--color-text);
+  }
+  .breadcrumbs .current {
+    color: var(--color-text);
+  }
+
+  .country-hero-img {
+    width: 100%;
+    aspect-ratio: 21/9;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-md);
+  }
+
+  .country-page h1 {
+    font-size: 2.2rem;
+    margin-bottom: var(--space-xs);
+  }
+
+  .country-summary {
+    color: var(--color-text-muted);
+    max-width: 600px;
+    margin-bottom: var(--space-sm);
+  }
+
+  .places-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+    margin-bottom: var(--space-lg);
+  }
+
+  .places-label {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    margin-right: 0.3rem;
+  }
+
+  .place-pill {
+    background-color: var(--color-surface-secondary);
+    border: 1px solid var(--color-border);
+    color: var(--color-text);
+    font-size: 0.8rem;
+    padding: 0.3rem 0.8rem;
+    border-radius: 999px;
+  }
+
+  .country-section {
+    margin-bottom: var(--space-xl);
+  }
+  .country-section h2 {
+    font-size: 1.3rem;
+    margin-bottom: var(--space-sm);
+  }
+
+  .country-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-sm);
+  }
+
+  .country-card {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+
+  .country-card img {
+    width: 100%;
+    aspect-ratio: 16/10;
+    object-fit: cover;
+  }
+
+  .country-card-body {
+    padding: var(--space-sm);
+  }
+
+  .tag-pill {
+    display: inline-block;
+    background-color: var(--color-accent);
+    color: var(--color-text-strong);
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 0.2rem 0.5rem;
+    border-radius: var(--radius-sm);
+    margin-bottom: 0.4rem;
+  }
+
+  .country-card-body h3 {
+    font-size: 1rem;
+    margin-bottom: 0.2rem;
+  }
+  .country-card-body p {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+
+  .no-content-msg {
+    text-align: center;
+    color: var(--color-text-muted);
+    padding: var(--space-xl) 0;
+  }
+
+  @media (max-width: 900px) {
+    .country-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 600px) {
+    .country-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
