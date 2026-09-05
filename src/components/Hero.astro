@@ -39,23 +39,41 @@ const {
     <h1 class="hero-heading">{heading}</h1>
     <p class="hero-subtext">{subtext}</p>
 
-    <div class="hero-search">
-      <input
-        type="text"
-        placeholder="Search destinations, countries & travel guides..."
-        class="hero-search-input"
-      />
-      <button class="hero-search-btn" aria-label="Search">
-        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-          <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"
-          ></circle>
-          <path
-            d="M16 16L12.5 12.5"
-            stroke="currentColor"
-            stroke-width="1.5"
-            stroke-linecap="round"></path>
-        </svg>
-      </button>
+    <!-- .hero-search-wrap is the positioned ancestor for the dropdown
+         below, so the dropdown always sits flush under this exact box
+         and matches its exact width — fully independent of the header's
+         own dropdown. -->
+    <div class="hero-search-wrap" id="hero-search-wrap">
+      <div class="hero-search">
+        <input
+          type="text"
+          placeholder="Search destinations, countries & travel guides..."
+          class="hero-search-input"
+          id="hero-search-input"
+          autocomplete="off"
+        />
+        <button
+          class="hero-search-btn"
+          aria-label="Search"
+          id="hero-search-btn"
+        >
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"
+            ></circle>
+            <path
+              d="M16 16L12.5 12.5"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div class="hero-search-dropdown" id="hero-search-dropdown">
+        <p class="wtp-search-empty">
+          Start typing to search destinations, guides, and books...
+        </p>
+      </div>
     </div>
 
     <div class="hero-popular">
@@ -77,7 +95,11 @@ const {
     min-height: 480px;
     display: flex;
     align-items: center;
-    overflow: hidden;
+    /* No overflow:hidden here. The background <Image> already clips
+       itself via object-fit:cover on its own box, so this wrapper doesn't
+       need to clip anything — and if it did, it would also clip the
+       search dropdown below (which needs to visually extend past this
+       section), no matter how high that dropdown's z-index is set. */
   }
 
   .hero-bg {
@@ -133,13 +155,19 @@ const {
     margin-bottom: var(--space-md);
   }
 
+  /* Positioned ancestor for .hero-search-dropdown. Same max-width as the
+     search box itself so the dropdown never exceeds the box's width. */
+  .hero-search-wrap {
+    position: relative;
+    max-width: 600px;
+    margin-bottom: var(--space-sm);
+  }
+
   .hero-search {
     display: flex;
-    max-width: 600px;
     background-color: #ffffff;
     border-radius: var(--radius-sm);
     overflow: hidden;
-    margin-bottom: var(--space-sm);
   }
 
   .hero-search-input {
@@ -161,6 +189,32 @@ const {
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+
+  /* Hero's own dropdown. Anchored to .hero-search-wrap, spans its full
+     width (left:0; right:0 within that wrap), opens directly beneath the
+     search box with a small gap. Independent from the header's dropdown
+     — no shared element, no shared position, no shared open/close state. */
+  .hero-search-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    max-height: 70vh;
+    overflow-y: auto;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+    /* Must beat .site-header's sticky z-index (50) so the dropdown always
+       renders on top of the header row, not behind/under it. */
+    z-index: 120;
+    padding: var(--space-sm) var(--space-md) var(--space-md);
+  }
+
+  .hero-search-dropdown.open {
+    display: block;
   }
 
   .hero-popular {
@@ -196,3 +250,60 @@ const {
     }
   }
 </style>
+
+<script>
+  const heroSearchWrap = document.getElementById("hero-search-wrap");
+  const heroSearchInput = document.getElementById(
+    "hero-search-input",
+  ) as HTMLInputElement;
+  const heroSearchBtn = document.getElementById("hero-search-btn");
+  const heroSearchDropdown = document.getElementById("hero-search-dropdown");
+
+  function openHeroDropdown() {
+    heroSearchDropdown?.classList.add("open");
+  }
+
+  function closeHeroDropdown() {
+    heroSearchDropdown?.classList.remove("open");
+  }
+
+  function updateHeroResults(query: string) {
+    if (heroSearchDropdown) {
+      heroSearchDropdown.innerHTML =
+        (window as any).__wtpSearch?.renderResultsHTML(query) || "";
+    }
+  }
+
+  heroSearchInput?.addEventListener("input", () => {
+    const query = heroSearchInput.value;
+    updateHeroResults(query);
+    if (query.trim()) {
+      openHeroDropdown();
+    } else {
+      closeHeroDropdown();
+    }
+  });
+
+  heroSearchInput?.addEventListener("focus", () => {
+    if (heroSearchInput.value.trim()) openHeroDropdown();
+  });
+
+  heroSearchBtn?.addEventListener("click", () => {
+    updateHeroResults(heroSearchInput?.value || "");
+    openHeroDropdown();
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeHeroDropdown();
+  });
+
+  // Outside click closes ONLY the hero dropdown, and only when the click
+  // is outside this hero search wrap specifically.
+  document.addEventListener("mousedown", (e) => {
+    if (!heroSearchDropdown?.classList.contains("open")) return;
+    const target = e.target as Node;
+    if (heroSearchWrap && !heroSearchWrap.contains(target)) {
+      closeHeroDropdown();
+    }
+  });
+</script>

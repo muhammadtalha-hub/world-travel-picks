@@ -1,0 +1,279 @@
+---
+export const prerender = false;
+
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Card from "../components/Card.astro";
+import { getCollection } from "astro:content";
+import { getSearchDisplayTags } from "../utils/articles";
+
+const query = Astro.url.searchParams.get("q") || "";
+
+const allArticles = await getCollection("articles", ({ data }) => !data.draft);
+
+const lowerQuery = query.toLowerCase().trim();
+
+const results = lowerQuery
+  ? allArticles.filter((article) => {
+      const titleMatch = article.data.title.toLowerCase().includes(lowerQuery);
+      const tagMatch = article.data.tags.some((tag) =>
+        tag.toLowerCase().includes(lowerQuery),
+      );
+      return titleMatch || tagMatch;
+    })
+  : [];
+
+// Grouped by section, matching the dropdown's structure exactly.
+const destinationResults = results.filter(
+  (a) => a.data.tags[0] === "Destinations",
+);
+const guideResults = results.filter((a) => a.data.tags[0] === "Guides");
+const bookResults = results.filter((a) => a.data.tags[0] === "Books");
+
+const totalResults = results.length;
+---
+
+<BaseLayout title={`Search results for "${query}" — World Travel Picks`}>
+  <section class="search-hero">
+    <div class="search-hero-inner">
+      <p class="search-eyebrow">Search Results</p>
+      <h1>Showing results for "{query}"</h1>
+    </div>
+  </section>
+
+  <div class="search-content">
+    <div class="search-input-row">
+      <svg width="16" height="16" viewBox="0 0 18 18" fill="none">
+        <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"
+        ></circle>
+        <path
+          d="M16 16L12.5 12.5"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"></path>
+      </svg>
+      <input
+        type="text"
+        id="search-page-input"
+        value={query}
+        placeholder="Search destinations, countries & guides..."
+      />
+    </div>
+
+    {
+      totalResults === 0 ? (
+        <div class="no-results-block">
+          <p>No results found for "{query}".</p>
+          <p class="no-results-hint">
+            Try a different keyword, or browse our{" "}
+            <a href="/destinations">Destinations</a>,{" "}
+            <a href="/guides">Guides</a>, or <a href="/books">Books</a>.
+          </p>
+        </div>
+      ) : (
+        <>
+          <p class="results-count">
+            Showing {totalResults} of {totalResults} results for "{query}"
+          </p>
+
+          {guideResults.length > 0 && (
+            <section class="results-section">
+              <div class="results-section-header">
+                <h2>Guides ({guideResults.length})</h2>
+                <a href="/guides">View All Guides →</a>
+              </div>
+              <div class="results-grid">
+                {guideResults.map((article) => (
+                  <Card
+                    image={article.data.coverImage}
+                    tag={getSearchDisplayTags(article).join(" · ")}
+                    title={article.data.title}
+                    meta={`${article.data.readTime} · ${article.data.publishDate.toDateString()}`}
+                    href={`/articles/${article.id}`}
+                  />
+                ))}
+              </div>
+            </section>
+          )}
+
+          {bookResults.length > 0 && (
+            <section class="results-section">
+              <div class="results-section-header">
+                <h2>Books ({bookResults.length})</h2>
+                <a href="/books">View All Books →</a>
+              </div>
+              <div class="results-grid">
+                {bookResults.map((article) => (
+                  <Card
+                    image={article.data.coverImage}
+                    tag={getSearchDisplayTags(article).join(" · ")}
+                    title={article.data.title}
+                    meta={`${article.data.readTime} · ${article.data.publishDate.toDateString()}`}
+                    href={`/articles/${article.id}`}
+                  />
+                ))}
+              </div>
+            </section>
+          )}
+
+          {destinationResults.length > 0 && (
+            <section class="results-section">
+              <div class="results-section-header">
+                <h2>Destinations ({destinationResults.length})</h2>
+                <a href="/destinations">View All Destinations →</a>
+              </div>
+              <div class="results-grid">
+                {destinationResults.map((article) => (
+                  <Card
+                    image={article.data.coverImage}
+                    tag={getSearchDisplayTags(article).join(" · ")}
+                    title={article.data.title}
+                    meta={`${article.data.readTime} · ${article.data.publishDate.toDateString()}`}
+                    href={`/articles/${article.id}`}
+                  />
+                ))}
+              </div>
+            </section>
+          )}
+        </>
+      )
+    }
+  </div>
+</BaseLayout>
+
+<style>
+  .search-hero {
+    background-color: var(--color-bg-dark);
+    padding: var(--space-lg) var(--space-md);
+  }
+
+  .search-hero-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .search-eyebrow {
+    color: var(--color-accent);
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: var(--space-xs);
+  }
+
+  .search-hero h1 {
+    color: #ffffff;
+    font-size: 1.8rem;
+    margin: 0;
+  }
+
+  .search-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: var(--space-md);
+  }
+
+  .search-input-row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    padding: 0.7rem 1.1rem;
+    max-width: 500px;
+    margin-bottom: var(--space-md);
+    color: var(--color-text-muted);
+  }
+
+  .search-input-row input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: none;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    color: var(--color-text);
+  }
+
+  .results-count {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-md);
+  }
+
+  .results-section {
+    margin-bottom: var(--space-xl);
+  }
+
+  .results-section-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: var(--space-sm);
+  }
+
+  .results-section-header h2 {
+    font-size: 1.1rem;
+    margin: 0;
+  }
+
+  .results-section-header a {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+  }
+
+  .results-section-header a:hover {
+    color: var(--color-text);
+  }
+
+  .results-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-sm);
+  }
+
+  .no-results-block {
+    text-align: center;
+    padding: var(--space-2xl) 0;
+    color: var(--color-text-muted);
+  }
+
+  .no-results-hint {
+    font-size: 0.9rem;
+  }
+  .no-results-hint a {
+    color: var(--color-text);
+    font-weight: 600;
+  }
+
+  @media (max-width: 1100px) {
+    .results-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 600px) {
+    .results-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  // Pressing Enter in this page's own search box re-runs the search
+  // by navigating to the new query (full page reload — this is a real
+  // page, not a live-typing dropdown).
+  const input = document.getElementById(
+    "search-page-input",
+  ) as HTMLInputElement;
+  input?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      const query = input.value.trim();
+      if (query) {
+        window.location.href = `/search?q=${encodeURIComponent(query)}`;
+      }
+    }
+  });
+</script>

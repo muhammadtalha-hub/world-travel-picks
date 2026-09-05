@@ -1,0 +1,246 @@
+---
+// This component no longer renders any visible panel. It only loads the
+// article data once and exposes a shared search function + HTML renderer
+// on window.__wtpSearch, so Header.astro and Hero.astro can each build
+// their OWN independent dropdown using the same data and same result
+// markup, without sharing a single positioned panel.
+import { getCollection } from "astro:content";
+import { getCardDisplayTags } from "../utils/articles";
+
+const allArticles = await getCollection("articles", ({ data }) => !data.draft);
+
+const searchData = allArticles.map((article) => ({
+  id: article.id,
+  title: article.data.title,
+  tags: article.data.tags,
+  section: article.data.tags[0],
+  cardTags: getCardDisplayTags(article),
+  image: article.data.coverImage,
+  readTime: article.data.readTime,
+}));
+---
+
+<script define:vars={{ searchData }} is:inline>
+  window.__WTP_SEARCH_DATA__ = searchData;
+</script>
+
+<script>
+  type SearchItem = {
+    id: string;
+    title: string;
+    tags: string[];
+    section: string;
+    cardTags: string[];
+    image: string;
+    readTime: string;
+  };
+
+  function getData(): SearchItem[] {
+    return (window as any).__WTP_SEARCH_DATA__ || [];
+  }
+
+  function performSearch(query: string): SearchItem[] {
+    const lowerQuery = query.toLowerCase().trim();
+    if (!lowerQuery) return [];
+    return getData().filter((item) => {
+      const titleMatch = item.title.toLowerCase().includes(lowerQuery);
+      const tagMatch = item.tags.some((tag) =>
+        tag.toLowerCase().includes(lowerQuery),
+      );
+      return titleMatch || tagMatch;
+    });
+  }
+
+  function escapeHtml(str: string): string {
+    const div = document.createElement("div");
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  /**
+   * Returns ready-to-inject HTML for a dropdown's contents, given a raw
+   * query string. Used identically by Header's dropdown and Hero's
+   * dropdown — this is the ONLY place result markup is defined, so both
+   * boxes always look the same.
+   */
+  function renderResultsHTML(query: string): string {
+    if (!query.trim()) {
+      return '<p class="wtp-search-empty">Start typing to search destinations, guides, and books...</p>';
+    }
+
+    const results = performSearch(query);
+
+    if (results.length === 0) {
+      return `<p class="wtp-search-no-results">No results found for "${escapeHtml(query)}".</p>`;
+    }
+
+    const groups: Record<string, SearchItem[]> = {
+      Guides: [],
+      Books: [],
+      Destinations: [],
+    };
+    results.forEach((item) => {
+      if (groups[item.section]) groups[item.section].push(item);
+    });
+
+    const sectionLinks: Record<string, string> = {
+      Guides: "/guides",
+      Books: "/books",
+      Destinations: "/destinations",
+    };
+
+    let html = "";
+    for (const [sectionName, items] of Object.entries(groups)) {
+      if (items.length === 0) continue;
+      const topItems = items.slice(0, 3);
+      html += `
+        <div class="wtp-search-group">
+          <div class="wtp-search-group-header">
+            <h4>${sectionName === "Guides" ? "Top Guides" : sectionName}</h4>
+            <a href="${sectionLinks[sectionName]}">View All ${sectionName} →</a>
+          </div>
+          ${topItems
+            .map(
+              (item) => `
+            <a href="/articles/${item.id}" class="wtp-search-result-item">
+              <img src="${item.image}" alt="${escapeHtml(item.title)}" />
+              <div class="wtp-result-text">
+                <span class="wtp-result-title">${escapeHtml(item.title)}</span>
+                <span class="wtp-result-meta">${escapeHtml(item.cardTags.join(" · "))}</span>
+              </div>
+            </a>
+          `,
+            )
+            .join("")}
+        </div>
+      `;
+    }
+
+    html += `<a href="/search?q=${encodeURIComponent(query)}" class="wtp-search-view-all">View all results for "${escapeHtml(query)}" →</a>`;
+
+    return html;
+  }
+
+  // Exposed globally: both Header.astro and Hero.astro read from this.
+  // Pure functions only — no panel element, no open/close state here.
+  (window as any).__wtpSearch = { renderResultsHTML };
+</script>
+
+<style is:global>
+  /* Shared result-row styling used by BOTH the header dropdown and the
+     hero dropdown. Each dropdown container is defined locally in
+     Header.astro / Hero.astro, but the markup renderResultsHTML() produces
+     uses these classes, so the visual style always stays in sync between
+     the two boxes. Compact list rows only — never a grid/card layout. */
+
+  .wtp-search-empty {
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
+    text-align: center;
+    padding: var(--space-md) 0;
+  }
+
+  .wtp-search-no-results {
+    text-align: center;
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
+    padding: var(--space-md) 0;
+  }
+
+  .wtp-search-group {
+    margin-top: var(--space-sm);
+  }
+
+  .wtp-search-group:first-child {
+    margin-top: 0;
+  }
+
+  .wtp-search-group-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-xs);
+  }
+
+  .wtp-search-group-header h4 {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+
+  .wtp-search-group-header a {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+  }
+
+  .wtp-search-group-header a:hover {
+    color: var(--color-text);
+  }
+
+  /* One compact horizontal row per result: small thumbnail + text. */
+  .wtp-search-result-item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.35rem 0.3rem;
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    width: 100%;
+  }
+
+  .wtp-search-result-item:hover {
+    background-color: var(--color-surface-secondary);
+  }
+
+  .wtp-search-result-item img {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    min-height: 38px;
+    max-width: 38px;
+    max-height: 38px;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+    flex-shrink: 0;
+    display: block;
+  }
+
+  .wtp-result-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    overflow: hidden;
+    flex: 1;
+  }
+
+  .wtp-result-title {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .wtp-result-meta {
+    font-size: 0.7rem;
+    color: var(--color-text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .wtp-search-view-all {
+    display: block;
+    text-align: center;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-text);
+    padding: var(--space-sm);
+    border-top: 1px solid var(--color-border);
+    margin-top: var(--space-xs);
+  }
+</style>

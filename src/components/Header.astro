@@ -69,17 +69,61 @@ const kdpStoreUrl = ""; // TODO: paste your KDP/Amazon store URL here once publi
     </nav>
 
     <div class="header-actions">
-      <button class="icon-btn" aria-label="Search">
-        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-          <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"
-          ></circle>
-          <path
-            d="M16 16L12.5 12.5"
-            stroke="currentColor"
-            stroke-width="1.5"
-            stroke-linecap="round"></path>
-        </svg>
-      </button>
+      <div class="header-search-wrap" id="header-search-wrap">
+        <button class="icon-btn" aria-label="Search" id="header-search-btn">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"
+            ></circle>
+            <path
+              d="M16 16L12.5 12.5"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"></path>
+          </svg>
+        </button>
+
+        <div class="header-search-field" id="header-search-field">
+          <svg width="16" height="16" viewBox="0 0 18 18" fill="none">
+            <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"
+            ></circle>
+            <path
+              d="M16 16L12.5 12.5"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"></path>
+          </svg>
+          <input
+            type="text"
+            id="header-search-input"
+            placeholder="Search destinations, countries & travel guides..."
+            autocomplete="off"
+          />
+          <button
+            id="header-search-close"
+            aria-label="Close search"
+            type="button"
+          >
+            <svg width="16" height="16" viewBox="0 0 18 18" fill="none">
+              <path
+                d="M4 4L14 14M14 4L4 14"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"></path>
+            </svg>
+          </button>
+        </div>
+
+        <!-- This dropdown belongs ONLY to the header search box. It is
+             positioned absolutely relative to .header-search-wrap (the
+             closest positioned ancestor), so it always sits flush under
+             #header-search-field and matches its width exactly, no matter
+             what Hero's dropdown is doing. -->
+        <div class="header-search-dropdown" id="header-search-dropdown">
+          <p class="wtp-search-empty">
+            Start typing to search destinations, guides, and books...
+          </p>
+        </div>
+      </div>
 
       <button
         class="theme-toggle"
@@ -272,6 +316,89 @@ const kdpStoreUrl = ""; // TODO: paste your KDP/Amazon store URL here once publi
     gap: var(--space-sm);
   }
 
+  /* This wrap is the positioned ancestor for BOTH the expanding search
+     field and its dropdown, so the dropdown's `position: absolute` is
+     always relative to this box, wherever it sits in the header. */
+  .header-search-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .header-search-field {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    align-items: center;
+    gap: 0.5rem;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    padding: 0.5rem 0.9rem;
+    width: 320px;
+    max-width: 60vw;
+    z-index: 60;
+    color: var(--color-text-muted);
+  }
+
+  .header-search-field.open {
+    display: flex;
+  }
+
+  .header-search-field input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: none;
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    color: var(--color-text);
+  }
+
+  #header-search-close {
+    background: none;
+    border: none;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    display: flex;
+  }
+
+  .header-search-wrap.open .icon-btn {
+    display: none;
+  }
+
+  /* The header's own dropdown. Anchored to the same right edge and same
+     width as #header-search-field (via matching right:0 + width), and
+     positioned directly beneath it using top: 100% + a small gap. This
+     is completely independent from Hero's dropdown — no shared element,
+     no shared position. */
+  .header-search-dropdown {
+    display: none;
+    position: absolute;
+    /* .header-search-field is vertically centered inside .header-search-wrap
+       via top:50%/translateY(-50%), so "100% of the wrap" is NOT the same
+       as "bottom of the field". Anchor from the wrap's vertical center and
+       push down by half the field's height plus a visible gap instead. */
+    top: calc(50% + 24px);
+    right: 0;
+    width: 320px;
+    max-width: 60vw;
+    max-height: 70vh;
+    overflow-y: auto;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+    z-index: 60;
+    padding: var(--space-sm) var(--space-md) var(--space-md);
+  }
+
+  .header-search-dropdown.open {
+    display: block;
+  }
+
   .icon-btn {
     background: none;
     border: none;
@@ -332,6 +459,51 @@ const kdpStoreUrl = ""; // TODO: paste your KDP/Amazon store URL here once publi
     }
     .logo-text-short {
       display: inline;
+    }
+  }
+
+  /* Mobile: the expanding field must take over the FULL navbar row width,
+     not just the width of .header-search-wrap (which is only as wide as
+     the search icon itself). Since .header-search-wrap is a small flex
+     child, left:0/right:0 on an absolutely-positioned child of IT only
+     spans that small wrap — not the screen. So on mobile we switch the
+     field (and its dropdown) to `position: fixed`, pinned to the actual
+     viewport edges, sitting right below the header bar. This matches the
+     "icon -> full-width bar -> dropdown flush underneath, same width"
+     behavior from the sketch. */
+  @media (max-width: 700px) {
+    .header-search-field {
+      position: fixed;
+      /* top is set exactly in JS (to the header's real rendered height) —
+         this value is just a fallback before JS runs. */
+      top: 56px;
+      left: 0;
+      right: 0;
+      transform: none;
+      width: auto;
+      max-width: none;
+      border-radius: 0;
+      border-left: none;
+      border-right: none;
+      border-top: none;
+      padding: 0.7rem var(--space-md);
+      z-index: 65;
+    }
+
+    .header-search-dropdown {
+      position: fixed;
+      /* top is set exactly in JS (header height + field height) — this
+         value is just a fallback before JS runs. */
+      top: 108px;
+      left: 0;
+      right: 0;
+      width: auto;
+      max-width: none;
+      max-height: calc(100vh - 108px);
+      border-radius: 0;
+      border-left: none;
+      border-right: none;
+      z-index: 64;
     }
   }
 
@@ -479,6 +651,101 @@ const kdpStoreUrl = ""; // TODO: paste your KDP/Amazon store URL here once publi
     const current = document.documentElement.getAttribute("data-theme");
     const next = current === "dark" ? "light" : "dark";
     (window as any).setWtpTheme(next);
+  });
+
+  // --- Header search: fully self-contained -----------------------------
+  const searchWrap = document.getElementById("header-search-wrap");
+  const searchBtn = document.getElementById("header-search-btn");
+  const searchField = document.getElementById("header-search-field");
+  const searchInput = document.getElementById(
+    "header-search-input",
+  ) as HTMLInputElement;
+  const searchCloseBtn = document.getElementById("header-search-close");
+  const searchDropdown = document.getElementById("header-search-dropdown");
+
+  // On mobile, the expanding field and its dropdown are `position: fixed`
+  // (see the max-width:700px block above), so they need their exact `top`
+  // set from the real, rendered header height — not a guessed pixel value
+  // that would drift if the header's padding/logo size ever changes.
+  function positionMobileSearchFixed() {
+    const header = document.querySelector(".site-header") as HTMLElement;
+    if (!header || !searchField || !searchDropdown) return;
+    const headerHeight = header.getBoundingClientRect().height;
+    searchField.style.top = `${headerHeight}px`;
+    // Field height is only known once it's visible (display: flex), which
+    // happens right before this runs in openHeaderField().
+    const fieldHeight = searchField.getBoundingClientRect().height;
+    searchDropdown.style.top = `${headerHeight + fieldHeight}px`;
+    searchDropdown.style.maxHeight = `calc(100vh - ${headerHeight + fieldHeight}px)`;
+  }
+
+  function openHeaderField() {
+    searchWrap?.classList.add("open");
+    searchField?.classList.add("open");
+    // Position AFTER adding .open so getBoundingClientRect() reads the
+    // field's real, visible height rather than 0 (display: none).
+    requestAnimationFrame(positionMobileSearchFixed);
+    setTimeout(() => searchInput?.focus(), 50);
+  }
+
+  function closeHeaderSearch() {
+    searchWrap?.classList.remove("open");
+    searchField?.classList.remove("open");
+    searchDropdown?.classList.remove("open");
+    if (searchInput) searchInput.value = "";
+  }
+
+  function openHeaderDropdown() {
+    searchDropdown?.classList.add("open");
+  }
+
+  function closeHeaderDropdown() {
+    searchDropdown?.classList.remove("open");
+  }
+
+  searchBtn?.addEventListener("click", openHeaderField);
+  searchCloseBtn?.addEventListener("click", closeHeaderSearch);
+
+  searchInput?.addEventListener("input", () => {
+    const query = searchInput.value;
+    if (searchDropdown) {
+      searchDropdown.innerHTML =
+        (window as any).__wtpSearch?.renderResultsHTML(query) || "";
+    }
+    if (query.trim()) {
+      openHeaderDropdown();
+    } else {
+      closeHeaderDropdown();
+    }
+  });
+
+  // Re-open the dropdown on focus if there's already a query typed
+  // (e.g. user clicked away and back into the field without clearing it).
+  searchInput?.addEventListener("focus", () => {
+    if (searchInput.value.trim()) openHeaderDropdown();
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && searchField?.classList.contains("open")) {
+      closeHeaderSearch();
+    }
+  });
+
+  window.addEventListener("resize", () => {
+    if (searchField?.classList.contains("open")) {
+      positionMobileSearchFixed();
+    }
+  });
+
+  // Outside click: closes the dropdown (and the whole expanding field)
+  // ONLY when the click is outside this header's own search wrap.
+  // Uses mousedown so it fires before any focus/blur races.
+  document.addEventListener("mousedown", (e) => {
+    if (!searchWrap?.classList.contains("open")) return;
+    const target = e.target as Node;
+    if (!searchWrap.contains(target)) {
+      closeHeaderSearch();
+    }
   });
 
   // Mobile drawer open/close

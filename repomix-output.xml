@@ -1,0 +1,5561 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+public/
+  favicon.png
+src/
+  assets/
+    images/
+      hero-books.jpg
+      hero-destinations.jpg
+      hero-guides.jpg
+      hero-home.jpg
+  components/
+    Card.astro
+    CardRow.astro
+    ComingSoon.astro
+    ExploreWorld.astro
+    FeatureStrip.astro
+    Footer.astro
+    Header.astro
+    Hero.astro
+    HomeFeaturedRow.astro
+    ListingFilterBar.astro
+    ListingHero.astro
+    SearchOverlay.astro
+    Skeleton.astro
+  content/
+    articles/
+      germany-bavaria-guide.md
+      japan-10-places.md
+      kids-japan-adventure.md
+  layouts/
+    BaseLayout.astro
+  pages/
+    articles/
+      [...slug].astro
+    destinations/
+      [country].astro
+    books.astro
+    destinations.astro
+    guides.astro
+    index.astro
+  styles/
+    global.css
+  utils/
+    articles.ts
+  content.config.ts
+.gitignore
+AGENTS.md
+astro.config.mjs
+package.json
+README.md
+tsconfig.json
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="src/components/SearchOverlay.astro">
+---
+import { getCollection } from "astro:content";
+import { getCardDisplayTags } from "../utils/articles";
+
+const allArticles = await getCollection("articles", ({ data }) => !data.draft);
+
+const searchData = allArticles.map((article) => ({
+  id: article.id,
+  title: article.data.title,
+  tags: article.data.tags,
+  section: article.data.tags[0],
+  cardTags: getCardDisplayTags(article),
+  image: article.data.coverImage,
+  readTime: article.data.readTime,
+}));
+---
+
+<div
+  class="search-results-panel"
+  id="search-results-panel"
+  data-search={JSON.stringify(searchData)}
+>
+  <p class="search-empty-hint">
+    Start typing to search destinations, guides, and books...
+  </p>
+</div>
+
+<div class="search-panel-backdrop" id="search-panel-backdrop"></div>
+
+<style>
+  .search-panel-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.25);
+    z-index: 55;
+  }
+
+  .search-panel-backdrop.open {
+    display: block;
+  }
+
+  .search-results-panel {
+    display: none;
+    position: fixed;
+    top: 76px;
+    right: var(--space-md);
+    width: 420px;
+    max-width: 92vw;
+    max-height: 70vh;
+    overflow-y: auto;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+    z-index: 61;
+    padding: var(--space-sm) var(--space-md) var(--space-md);
+  }
+
+  .search-results-panel.open {
+    display: block;
+  }
+
+  .search-empty-hint {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    text-align: center;
+    padding: var(--space-lg) 0;
+  }
+
+  .search-group {
+    margin-top: var(--space-md);
+  }
+
+  .search-group-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-xs);
+  }
+
+  .search-group-header h4 {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-muted);
+  }
+
+  .search-group-header a {
+    font-size: 0.78rem;
+    color: var(--color-text-muted);
+  }
+
+  .search-group-header a:hover {
+    color: var(--color-text);
+  }
+
+  .search-result-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: 0.5rem 0.3rem;
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+  }
+
+  .search-result-item:hover {
+    background-color: var(--color-surface-secondary);
+  }
+
+  .search-result-item img {
+    width: 44px !important;
+    min-width: 44px !important;
+    max-width: 44px !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    max-height: 44px !important;
+    object-fit: cover !important;
+    border-radius: var(--radius-sm);
+    flex-shrink: 0;
+    display: block;
+  }
+
+  .search-result-item {
+    flex-direction: row !important;
+  }
+
+  .search-result-item .result-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .search-result-item .result-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .search-result-item .result-meta {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+  }
+
+  .search-view-all {
+    display: block;
+    text-align: center;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-text);
+    padding: var(--space-sm);
+    border-top: 1px solid var(--color-border);
+    margin-top: var(--space-sm);
+  }
+
+  .search-no-results {
+    text-align: center;
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    padding: var(--space-lg) 0;
+  }
+
+  /* Mobile: panel becomes full-width, sits right under the takeover search bar */
+  @media (max-width: 700px) {
+    .search-results-panel {
+      top: 60px;
+      right: 0;
+      left: 0;
+      width: 100%;
+      max-width: 100%;
+      max-height: calc(100vh - 60px);
+      border-radius: 0;
+      border-left: none;
+      border-right: none;
+      padding: var(--space-sm) var(--space-sm) var(--space-md);
+    }
+
+    .search-result-item {
+      gap: 0.6rem;
+      padding: 0.5rem 0.2rem;
+    }
+
+    .search-result-item .result-title {
+      font-size: 0.8rem;
+    }
+
+    .search-result-item .result-meta {
+      font-size: 0.7rem;
+    }
+  }
+</style>
+
+<script>
+  type SearchItem = {
+    id: string;
+    title: string;
+    tags: string[];
+    section: string;
+    cardTags: string[];
+    image: string;
+    readTime: string;
+  };
+
+  const panel = document.getElementById("search-results-panel");
+  const backdrop = document.getElementById("search-panel-backdrop");
+
+  let searchData: SearchItem[] = [];
+  try {
+    searchData = JSON.parse(panel?.getAttribute("data-search") || "[]");
+  } catch {
+    searchData = [];
+  }
+
+  function performSearch(query: string): SearchItem[] {
+    const lowerQuery = query.toLowerCase().trim();
+    if (!lowerQuery) return [];
+    return searchData.filter((item) => {
+      const titleMatch = item.title.toLowerCase().includes(lowerQuery);
+      const tagMatch = item.tags.some((tag) =>
+        tag.toLowerCase().includes(lowerQuery),
+      );
+      return titleMatch || tagMatch;
+    });
+  }
+
+  function escapeHtml(str: string): string {
+    const div = document.createElement("div");
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function renderResults(query: string) {
+    if (!panel) return;
+
+    if (!query.trim()) {
+      panel.innerHTML =
+        '<p class="search-empty-hint">Start typing to search destinations, guides, and books...</p>';
+      return;
+    }
+
+    const results = performSearch(query);
+
+    if (results.length === 0) {
+      panel.innerHTML = `<p class="search-no-results">No results found for "${escapeHtml(query)}".</p>`;
+      return;
+    }
+
+    const groups: Record<string, SearchItem[]> = {
+      Guides: [],
+      Books: [],
+      Destinations: [],
+    };
+    results.forEach((item) => {
+      if (groups[item.section]) groups[item.section].push(item);
+    });
+
+    const sectionLinks: Record<string, string> = {
+      Guides: "/guides",
+      Books: "/books",
+      Destinations: "/destinations",
+    };
+
+    let html = "";
+    for (const [sectionName, items] of Object.entries(groups)) {
+      if (items.length === 0) continue;
+      const topItems = items.slice(0, 3);
+      html += `
+        <div class="search-group">
+          <div class="search-group-header">
+            <h4>${sectionName === "Guides" ? "Top Guides" : sectionName}</h4>
+            <a href="${sectionLinks[sectionName]}">View All ${sectionName} →</a>
+          </div>
+          ${topItems
+            .map(
+              (item) => `
+            <a href="/articles/${item.id}" class="search-result-item">
+              <img src="${item.image}" alt="${escapeHtml(item.title)}" />
+              <div class="result-text">
+                <span class="result-title">${escapeHtml(item.title)}</span>
+                <span class="result-meta">${escapeHtml(item.cardTags.join(" · "))}</span>
+              </div>
+            </a>
+          `,
+            )
+            .join("")}
+        </div>
+      `;
+    }
+
+    html += `<a href="/search?q=${encodeURIComponent(query)}" class="search-view-all">View all results for "${escapeHtml(query)}" →</a>`;
+
+    panel.innerHTML = html;
+  }
+
+  function openPanel() {
+    panel?.classList.add("open");
+    backdrop?.classList.add("open");
+  }
+
+  function closePanel() {
+    panel?.classList.remove("open");
+    backdrop?.classList.remove("open");
+  }
+
+  backdrop?.addEventListener("click", closePanel);
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closePanel();
+  });
+
+  // Close when clicking anywhere outside the panel or the search input itself.
+  document.addEventListener("click", (e) => {
+    const target = e.target as Node;
+    const clickedInsidePanel = panel?.contains(target);
+    const clickedSearchInput = (target as HTMLElement).closest(
+      "#header-search-wrap, .hero-search",
+    );
+    if (
+      panel?.classList.contains("open") &&
+      !clickedInsidePanel &&
+      !clickedSearchInput
+    ) {
+      closePanel();
+    }
+  });
+
+  // Exposed globally: Header.astro and Hero.astro call these directly.
+  (window as any).__searchPanel = { openPanel, closePanel, renderResults };
+</script>
+</file>
+
+<file path="src/components/Card.astro">
+---
+// Reusable card — used for Destinations, Guides, Books, and Articles.
+// Pass in the props below to customize each card's content.
+
+const {
+  image,
+  tag,        // e.g. "Japan" or "Kids Adventure Series"
+  title,
+  meta,       // e.g. "7 min read · Aug 21, 2026" or "28 Guides"
+  href = "#"
+} = Astro.props;
+---
+
+<a href={href} class="card">
+  <div class="card-image-wrap">
+    <img src={image} alt={title} loading="lazy" />
+    {tag && <span class="card-tag">{tag}</span>}
+  </div>
+  <div class="card-body">
+    <h3 class="card-title">{title}</h3>
+    {meta && <p class="card-meta">{meta}</p>}
+  </div>
+</a>
+
+<style>
+  .card {
+    display: block;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  }
+
+  .card-image-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background-color: var(--color-border);
+  }
+
+  .card-image-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .card-tag {
+    position: absolute;
+    top: var(--space-xs);
+    left: var(--space-xs);
+    background-color: var(--color-bg-dark);
+    color: var(--color-text-on-dark);
+    font-family: var(--font-body);
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 0.25rem 0.6rem;
+    border-radius: var(--radius-sm);
+  }
+
+  .card-body {
+    padding: var(--space-sm);
+  }
+
+  .card-title {
+    font-size: 1.1rem;
+    margin-bottom: var(--space-xs);
+  }
+
+  .card-meta {
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+</style>
+</file>
+
+<file path="src/components/CardRow.astro">
+---
+// Reusable section wrapper for homepage card rows (Articles, KDP Books Articles, etc.)
+// Pass real items to show cards, or omit/empty them to show the ComingSoon inline state.
+
+import Card from "./Card.astro";
+import ComingSoon from "./ComingSoon.astro";
+
+const {
+  heading,
+  viewAllHref = "#",
+  items = [],
+  showMoreLabel = "Show More",
+} = Astro.props;
+
+const hasItems = items && items.length > 0;
+---
+
+<section class="card-row">
+  <div class="card-row-header">
+    <h2>{heading}</h2>
+    <a href={viewAllHref} class="view-all-link">View All →</a>
+  </div>
+
+  {
+    hasItems ? (
+      <>
+        <div class="card-row-grid">
+          {items.map(
+            (item: {
+              image: string;
+              tag: string;
+              title: string;
+              meta: string;
+              href: string;
+            }) => (
+              <Card
+                image={item.image}
+                tag={item.tag}
+                title={item.title}
+                meta={item.meta}
+                href={item.href}
+              />
+            ),
+          )}
+        </div>
+        <div class="card-row-footer">
+          <button class="btn btn-solid btn-sm">{showMoreLabel} ↓</button>
+        </div>
+      </>
+    ) : (
+      <ComingSoon variant="inline" title="Coming Soon" />
+    )
+  }
+</section>
+
+<style>
+  .card-row {
+    padding: var(--space-lg) var(--space-md);
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .card-row-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: var(--space-sm);
+  }
+
+  .card-row-header h2 {
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin: 0;
+  }
+
+  .view-all-link {
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+  }
+
+  .view-all-link:hover {
+    color: var(--color-text);
+  }
+
+  .card-row-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: var(--space-sm);
+  }
+
+  .card-row-footer {
+    display: flex;
+    justify-content: center;
+    margin-top: var(--space-md);
+  }
+
+  @media (max-width: 1100px) {
+    .card-row-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  @media (max-width: 650px) {
+    .card-row-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+</style>
+</file>
+
+<file path="src/components/ComingSoon.astro">
+---
+// Two variants:
+// - "page" (default): full empty-state page — icon, heading, message, Back to Home button
+// - "inline": quiet placeholder for a section on an otherwise-full page (e.g. homepage
+//   "KDP Books Articles" row before any books are published) — no button, no redirect,
+//   just reserves the space with a simple label.
+
+const {
+  variant = "page",
+  title = "Coming Soon",
+  message = "We're working on this section. Check back soon for new content!",
+} = Astro.props;
+---
+
+{
+  variant === "inline" ? (
+    <div class="coming-soon-inline">
+      <span>{title}</span>
+    </div>
+  ) : (
+    <div class="coming-soon">
+      <div class="coming-soon-icon">
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+          <circle
+            cx="24"
+            cy="24"
+            r="20"
+            stroke="currentColor"
+            stroke-width="1.5"
+          />
+          <path
+            d="M24 14V24L30 28"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </div>
+      <h2>{title}</h2>
+      <p>{message}</p>
+      <a href="/" class="btn btn-outline">
+        Back to Home
+      </a>
+    </div>
+  )
+}
+
+<style>
+  .coming-soon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: var(--space-2xl) var(--space-md);
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  .coming-soon-icon {
+    color: var(--color-accent);
+    margin-bottom: var(--space-sm);
+  }
+
+  .coming-soon h2 {
+    margin-bottom: var(--space-xs);
+  }
+
+  .coming-soon p {
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-md);
+  }
+
+  .coming-soon-inline {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 160px;
+    border: 1px dashed var(--color-border);
+    border-radius: var(--radius-md);
+    background-color: var(--color-surface-secondary);
+  }
+
+  .coming-soon-inline span {
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-muted);
+  }
+</style>
+</file>
+
+<file path="src/components/FeatureStrip.astro">
+---
+// Homepage feature/value strip — 4 items with icon, heading, description.
+// Pass a custom "features" array to reuse this elsewhere if needed.
+
+const {
+  features = [
+    {
+      icon: "globe",
+      title: "150+ Destinations Researched",
+      description: "In-depth, trusted guides",
+    },
+    {
+      icon: "compass",
+      title: "Endless Travel Inspiration",
+      description: "Ideas for every kind of traveler",
+    },
+    {
+      icon: "document",
+      title: "Expert Travel Insights",
+      description: "Curated by researchers and travelers",
+    },
+    {
+      icon: "shield",
+      title: "Safe & Reliable Travel Planning",
+      description: "Practical tips for worry-free adventures",
+    },
+  ],
+} = Astro.props;
+
+const icons: Record<string, string> = {
+  globe: `<circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M3 12H21M12 3C14.5 5.5 15.5 8.5 15.5 12C15.5 15.5 14.5 18.5 12 21C9.5 18.5 8.5 15.5 8.5 12C8.5 8.5 9.5 5.5 12 3Z" stroke="currentColor" stroke-width="1.5"/>`,
+  compass: `<circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M15 9L13 13L9 15L11 11L15 9Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>`,
+  document: `<path d="M6 3H14L18 7V21H6V3Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M9 12H15M9 16H15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>`,
+  shield: `<path d="M12 3L19 6V11C19 15.5 16 19.5 12 21C8 19.5 5 15.5 5 11V6L12 3Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>`,
+};
+---
+
+<section class="feature-strip">
+  <div class="feature-strip-inner">
+    {
+      features.map(
+        (feature: { icon: string; title: string; description: string }) => (
+          <div class="feature-item">
+            <div class="feature-icon" set:html={icons[feature.icon]} />
+            <div class="feature-text">
+              <h3>{feature.title}</h3>
+              <p>{feature.description}</p>
+            </div>
+          </div>
+        ),
+      )
+    }
+  </div>
+</section>
+
+<style>
+  .feature-strip {
+    background-color: var(--color-surface-secondary);
+    padding: var(--space-lg) var(--space-md);
+  }
+
+  .feature-strip-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-lg);
+  }
+
+  .feature-item {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-sm);
+  }
+
+  .feature-icon {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background-color: var(--color-accent);
+    color: var(--color-text-strong);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .feature-icon svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .feature-text h3 {
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 0.2rem;
+    color: var(--color-text-strong);
+  }
+
+  .feature-text p {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+
+  @media (max-width: 900px) {
+    .feature-strip-inner {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 500px) {
+    .feature-strip-inner {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+</file>
+
+<file path="src/components/Hero.astro">
+---
+// Homepage hero section. Uses Astro's built-in Image component for
+// automatic optimization: modern formats (WebP), correct sizing,
+// and no layout shift while loading.
+
+import { Image } from "astro:assets";
+
+const {
+  eyebrow = "YOUR TRAVEL RESEARCH HUB",
+  heading = "Discover the World Differently",
+  subtext = "Research-driven guides to remarkable places, unforgettable journeys, and stories worth exploring.",
+  imageUrl,
+  imageAlt = "A traveler looking out over mountains and a lake",
+  popularSearches = [
+    "Japan",
+    "Switzerland",
+    "Iceland",
+    "Italy",
+    "Thailand",
+    "Portugal",
+  ],
+} = Astro.props;
+---
+
+<section class="hero">
+  <Image
+    src={imageUrl}
+    alt={imageAlt}
+    width={1600}
+    height={700}
+    format="webp"
+    quality={80}
+    class="hero-bg"
+  />
+  <div class="hero-overlay"></div>
+
+  <div class="hero-content">
+    <p class="hero-eyebrow">{eyebrow}</p>
+    <h1 class="hero-heading">{heading}</h1>
+    <p class="hero-subtext">{subtext}</p>
+
+    <div class="hero-search">
+      <input
+        type="text"
+        placeholder="Search destinations, countries & travel guides..."
+        class="hero-search-input"
+        id="hero-search-input"
+      />
+      <button class="hero-search-btn" aria-label="Search" id="hero-search-btn">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"
+          ></circle>
+          <path
+            d="M16 16L12.5 12.5"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"></path>
+        </svg>
+      </button>
+    </div>
+
+    <div class="hero-popular">
+      <span>Popular searches:</span>
+      {
+        popularSearches.map((term: string) => (
+          <a href={`/search?q=${encodeURIComponent(term)}`} class="hero-tag">
+            {term}
+          </a>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    min-height: 480px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+  }
+
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+  }
+
+  .hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      rgba(20, 21, 21, 0.75) 0%,
+      rgba(20, 21, 21, 0.35) 55%,
+      rgba(20, 21, 21, 0.1) 100%
+    );
+    z-index: 1;
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: var(--space-xl) var(--space-md);
+    width: 100%;
+  }
+
+  .hero-eyebrow {
+    color: var(--color-accent);
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: var(--space-xs);
+  }
+
+  .hero-heading {
+    color: #ffffff;
+    font-size: 3rem;
+    max-width: 600px;
+    margin-bottom: var(--space-sm);
+  }
+
+  .hero-subtext {
+    color: rgba(255, 255, 255, 0.85);
+    max-width: 500px;
+    margin-bottom: var(--space-md);
+  }
+
+  .hero-search {
+    display: flex;
+    max-width: 600px;
+    background-color: #ffffff;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    margin-bottom: var(--space-sm);
+  }
+
+  .hero-search-input {
+    flex: 1;
+    border: none;
+    padding: 0.9rem 1.1rem;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    color: var(--color-text);
+    outline: none;
+  }
+
+  .hero-search-btn {
+    background-color: var(--color-button-bg);
+    color: var(--color-button-text);
+    border: none;
+    padding: 0 1.3rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .hero-popular {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+  }
+
+  .hero-popular > span {
+    color: rgba(255, 255, 255, 0.75);
+    margin-right: 0.2rem;
+  }
+
+  .hero-tag {
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.15);
+    padding: 0.3rem 0.8rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    transition: background-color 0.15s ease;
+  }
+
+  .hero-tag:hover {
+    background-color: rgba(255, 255, 255, 0.25);
+  }
+
+  @media (max-width: 700px) {
+    .hero-heading {
+      font-size: 2rem;
+    }
+  }
+</style>
+
+<script>
+  const heroSearchInput = document.getElementById(
+    "hero-search-input",
+  ) as HTMLInputElement;
+  const heroSearchBtn = document.getElementById("hero-search-btn");
+
+  heroSearchInput?.addEventListener("input", () => {
+    const query = heroSearchInput.value;
+    if (query.trim()) {
+      (window as any).__searchPanel?.openPanel();
+      (window as any).__searchPanel?.renderResults(query);
+    } else {
+      (window as any).__searchPanel?.closePanel();
+    }
+  });
+
+  heroSearchBtn?.addEventListener("click", () => {
+    (window as any).__searchPanel?.renderResults(heroSearchInput?.value || "");
+    (window as any).__searchPanel?.openPanel();
+  });
+</script>
+</file>
+
+<file path="src/components/HomeFeaturedRow.astro">
+---
+// The three-column promo row: Latest Story, Resume Reading, Premium Guides.
+// Each column has a genuinely different layout, so they're written directly
+// here rather than forced into one reusable card shape.
+
+const {
+  latestStory = {
+    tag: "Japan",
+    title: "10 Incredible Places to Visit in Japan",
+    description:
+      "Beyond Tokyo and Kyoto, Japan is full of breathtaking places that most travelers miss.",
+    readTime: "8 min read",
+    date: "May 24, 2026",
+    image: null,
+    href: "#",
+  },
+  resumeReading = {
+    label: "YOU LEFT OFF",
+    title: "Switzerland: A Scenic Journey Through the Alps",
+    progress: 60,
+    image: null,
+    href: "#",
+  },
+} = Astro.props;
+---
+
+<section class="featured-row">
+  <div class="featured-row-inner">
+    <!-- Latest Story -->
+    <a href={latestStory.href} class="featured-card latest-story">
+      <div class="featured-card-image">
+        {
+          latestStory.image ? (
+            <img
+              src={latestStory.image}
+              alt={latestStory.title}
+              loading="lazy"
+            />
+          ) : (
+            <div class="image-placeholder" />
+          )
+        }
+        <span class="featured-label">Latest Story</span>
+      </div>
+      <div class="featured-card-body">
+        <span class="tag-pill">{latestStory.tag}</span>
+        <h3>{latestStory.title}</h3>
+        <p class="featured-desc">{latestStory.description}</p>
+        <p class="featured-meta">{latestStory.readTime} · {latestStory.date}</p>
+        <span class="btn btn-solid btn-sm">Read the Article →</span>
+      </div>
+    </a>
+
+    <!-- Resume Reading -->
+    <a href={resumeReading.href} class="featured-card resume-reading">
+      <div class="featured-card-image">
+        {
+          resumeReading.image ? (
+            <img
+              src={resumeReading.image}
+              alt={resumeReading.title}
+              loading="lazy"
+            />
+          ) : (
+            <div class="image-placeholder" />
+          )
+        }
+        <span class="featured-label">Resume Reading</span>
+      </div>
+      <div class="featured-card-body">
+        <span class="left-off-pill">{resumeReading.label}</span>
+        <h3>{resumeReading.title}</h3>
+        <div class="progress-row">
+          <div class="progress-track">
+            <div
+              class="progress-fill"
+              style={`width: ${resumeReading.progress}%`}
+            >
+            </div>
+          </div>
+          <span class="progress-label">{resumeReading.progress}% complete</span>
+        </div>
+        <span class="btn btn-solid btn-sm">Continue Reading →</span>
+      </div>
+    </a>
+
+    <!-- Premium Guides Promo -->
+    <div class="featured-card premium-promo">
+      <h3>Premium Travel Guides<br />for Every Journey</h3>
+      <p>
+        Well-researched guides, itineraries & travel resources to plan better.
+      </p>
+      <a href="/guides" class="btn btn-solid btn-sm">Explore Guides →</a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .featured-row {
+    padding: var(--space-lg) var(--space-md);
+  }
+
+  .featured-row-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1.3fr 1.3fr 1fr;
+    gap: var(--space-md);
+  }
+
+  .featured-card {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .featured-card-image {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    background-color: var(--color-surface-secondary);
+  }
+
+  .featured-card-image img,
+  .image-placeholder {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .image-placeholder {
+    background: linear-gradient(
+      135deg,
+      var(--color-surface-secondary),
+      var(--color-border)
+    );
+  }
+
+  .featured-label {
+    position: absolute;
+    top: var(--space-xs);
+    left: var(--space-xs);
+    background-color: rgba(20, 21, 21, 0.75);
+    color: #ffffff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0.3rem 0.6rem;
+    border-radius: var(--radius-sm);
+  }
+
+  .featured-card-body {
+    padding: var(--space-sm);
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    flex: 1;
+  }
+
+  .featured-card-body h3 {
+    font-size: 1.05rem;
+    margin: 0;
+  }
+
+  .tag-pill {
+    align-self: flex-start;
+    background-color: var(--color-accent);
+    color: var(--color-text-strong);
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 0.2rem 0.5rem;
+    border-radius: var(--radius-sm);
+  }
+
+  .left-off-pill {
+    align-self: flex-start;
+    color: var(--color-text-muted);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+
+  .featured-desc {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+
+  .featured-meta {
+    font-size: 0.78rem;
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+
+  .featured-card-body .btn {
+    align-self: flex-start;
+    margin-top: auto;
+  }
+
+  .progress-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+  }
+
+  .progress-track {
+    flex: 1;
+    height: 6px;
+    background-color: var(--color-border);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background-color: var(--color-button-bg);
+    border-radius: 999px;
+  }
+
+  .progress-label {
+    font-size: 0.78rem;
+    color: var(--color-text-muted);
+    white-space: nowrap;
+  }
+
+  .premium-promo {
+    background-color: var(--color-bg-dark);
+    color: #ffffff;
+    padding: var(--space-md);
+    justify-content: center;
+    gap: var(--space-xs);
+  }
+
+  .premium-promo h3 {
+    color: #ffffff;
+    font-size: 1.3rem;
+  }
+
+  .premium-promo p {
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 0.85rem;
+  }
+
+  .premium-promo .btn {
+    align-self: flex-start;
+    margin-top: var(--space-xs);
+  }
+
+  @media (max-width: 950px) {
+    .featured-row-inner {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+</file>
+
+<file path="src/components/Skeleton.astro">
+---
+// Reusable loading placeholder. Use this anywhere content hasn't loaded yet,
+// so the page shape stays stable instead of jumping around.
+//
+// variant: "image" | "text" | "title" | "circle"
+// width/height: any CSS size, e.g. "100%", "60px"
+
+const { variant = "text", width = "100%", height } = Astro.props;
+
+const defaultHeights = {
+  image: "200px",
+  text: "1rem",
+  title: "1.75rem",
+  circle: "48px",
+};
+
+const finalHeight =
+  height || defaultHeights[variant as keyof typeof defaultHeights] || "1rem";
+---
+
+<div
+  class={`skeleton skeleton-${variant}`}
+  style={`width: ${width}; height: ${finalHeight};`}
+>
+</div>
+
+<style>
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      var(--color-border) 25%,
+      #f0ede6 50%,
+      var(--color-border) 75%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-pulse 1.5s ease-in-out infinite;
+    border-radius: var(--radius-sm);
+  }
+
+  .skeleton-circle {
+    border-radius: 50%;
+  }
+
+  .skeleton-image {
+    border-radius: var(--radius-md);
+  }
+
+  @keyframes skeleton-pulse {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
+</style>
+</file>
+
+<file path="src/pages/destinations/[country].astro">
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+import { getCardDisplayTags } from "../../utils/articles";
+
+// One page per unique country name found anywhere in tags[1] or tags[2]
+// across ALL articles (Destinations, Guides, and Books alike) — this is
+// what makes the page fully automatic, with nothing to maintain by hand.
+export async function getStaticPaths() {
+  const allArticles = await getCollection(
+    "articles",
+    ({ data }) => !data.draft,
+  );
+
+  const countryNames = new Set<string>();
+  allArticles.forEach((article) => {
+    // Only tag positions 1 and 2 count as "country/place" tags per our
+    // locked tag rules — tag[0] is the section, not a place.
+    [article.data.tags[1], article.data.tags[2]].forEach((tag) => {
+      if (tag) countryNames.add(tag);
+    });
+  });
+
+  return Array.from(countryNames).map((country) => ({
+    params: { country: country.toLowerCase().replace(/\s+/g, "-") },
+    props: { countryName: country },
+  }));
+}
+
+const { countryName } = Astro.props;
+
+const allArticles = await getCollection("articles", ({ data }) => !data.draft);
+
+// Every article that mentions this country ANYWHERE in its tags —
+// crossing section boundaries on purpose, same principle as global search.
+const countryArticles = allArticles.filter((article) =>
+  article.data.tags.some(
+    (tag) => tag.toLowerCase() === countryName.toLowerCase(),
+  ),
+);
+
+const destinationArticles = countryArticles.filter(
+  (a) => a.data.tags[0] === "Destinations",
+);
+const guideArticles = countryArticles.filter(
+  (a) => a.data.tags[0] === "Guides",
+);
+const bookArticles = countryArticles.filter((a) => a.data.tags[0] === "Books");
+
+// Cities/regions mentioned for this country — anything in tag position 2
+// while tag position 1 matches this country (e.g. Germany → Bavaria).
+const relatedPlaces = new Set<string>();
+countryArticles.forEach((article) => {
+  const tags = article.data.tags;
+  if (tags[1]?.toLowerCase() === countryName.toLowerCase() && tags[2]) {
+    relatedPlaces.add(tags[2]);
+  }
+});
+
+const coverImage = countryArticles[0]?.data.coverImage || "";
+---
+
+<BaseLayout
+  title={`${countryName} — World Travel Picks`}
+  description={`Discover ${countryName}: destinations, guides, and travel stories.`}
+  image={coverImage}
+>
+  <div class="country-page">
+    <nav class="breadcrumbs">
+      <a href="/">Home</a>
+      <span>/</span>
+      <a href="/destinations">Destinations</a>
+      <span>/</span>
+      <span class="current">{countryName}</span>
+    </nav>
+
+    {
+      coverImage && (
+        <img src={coverImage} alt={countryName} class="country-hero-img" />
+      )
+    }
+
+    <h1>{countryName}</h1>
+    <p class="country-summary">
+      Explore {countryArticles.length}
+      {countryArticles.length === 1 ? "story" : "stories"} about {countryName},
+      from destination guides to in-depth travel articles.
+    </p>
+
+    {
+      relatedPlaces.size > 0 && (
+        <div class="places-row">
+          <span class="places-label">Explore:</span>
+          {Array.from(relatedPlaces).map((place) => (
+            <span class="place-pill">{place}</span>
+          ))}
+        </div>
+      )
+    }
+
+    {
+      destinationArticles.length > 0 && (
+        <section class="country-section">
+          <h2>Destinations in {countryName}</h2>
+          <div class="country-grid">
+            {destinationArticles.map((article) => (
+              <a href={`/articles/${article.id}`} class="country-card">
+                <img src={article.data.coverImage} alt={article.data.title} />
+                <div class="country-card-body">
+                  <span class="tag-pill">
+                    {getCardDisplayTags(article).join(" · ")}
+                  </span>
+                  <h3>{article.data.title}</h3>
+                  <p>{article.data.readTime}</p>
+                </div>
+              </a>
+            ))}
+          </div>
+        </section>
+      )
+    }
+
+    {
+      guideArticles.length > 0 && (
+        <section class="country-section">
+          <h2>Guides for {countryName}</h2>
+          <div class="country-grid">
+            {guideArticles.map((article) => (
+              <a href={`/articles/${article.id}`} class="country-card">
+                <img src={article.data.coverImage} alt={article.data.title} />
+                <div class="country-card-body">
+                  <span class="tag-pill">
+                    {getCardDisplayTags(article).join(" · ")}
+                  </span>
+                  <h3>{article.data.title}</h3>
+                  <p>{article.data.readTime}</p>
+                </div>
+              </a>
+            ))}
+          </div>
+        </section>
+      )
+    }
+
+    {
+      bookArticles.length > 0 && (
+        <section class="country-section">
+          <h2>Books set in {countryName}</h2>
+          <div class="country-grid">
+            {bookArticles.map((article) => (
+              <a href={`/articles/${article.id}`} class="country-card">
+                <img src={article.data.coverImage} alt={article.data.title} />
+                <div class="country-card-body">
+                  <span class="tag-pill">
+                    {getCardDisplayTags(article).join(" · ")}
+                  </span>
+                  <h3>{article.data.title}</h3>
+                  <p>{article.data.readTime}</p>
+                </div>
+              </a>
+            ))}
+          </div>
+        </section>
+      )
+    }
+
+    {
+      countryArticles.length === 0 && (
+        <p class="no-content-msg">
+          No content for {countryName} yet. Check back soon!
+        </p>
+      )
+    }
+  </div>
+</BaseLayout>
+
+<style>
+  .country-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--space-md);
+  }
+
+  .breadcrumbs {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-md);
+  }
+
+  .breadcrumbs a {
+    color: var(--color-text-muted);
+  }
+  .breadcrumbs a:hover {
+    color: var(--color-text);
+  }
+  .breadcrumbs .current {
+    color: var(--color-text);
+  }
+
+  .country-hero-img {
+    width: 100%;
+    aspect-ratio: 21/9;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-md);
+  }
+
+  .country-page h1 {
+    font-size: 2.2rem;
+    margin-bottom: var(--space-xs);
+  }
+
+  .country-summary {
+    color: var(--color-text-muted);
+    max-width: 600px;
+    margin-bottom: var(--space-sm);
+  }
+
+  .places-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+    margin-bottom: var(--space-lg);
+  }
+
+  .places-label {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    margin-right: 0.3rem;
+  }
+
+  .place-pill {
+    background-color: var(--color-surface-secondary);
+    border: 1px solid var(--color-border);
+    color: var(--color-text);
+    font-size: 0.8rem;
+    padding: 0.3rem 0.8rem;
+    border-radius: 999px;
+  }
+
+  .country-section {
+    margin-bottom: var(--space-xl);
+  }
+  .country-section h2 {
+    font-size: 1.3rem;
+    margin-bottom: var(--space-sm);
+  }
+
+  .country-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-sm);
+  }
+
+  .country-card {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+
+  .country-card img {
+    width: 100%;
+    aspect-ratio: 16/10;
+    object-fit: cover;
+  }
+
+  .country-card-body {
+    padding: var(--space-sm);
+  }
+
+  .tag-pill {
+    display: inline-block;
+    background-color: var(--color-accent);
+    color: var(--color-text-strong);
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 0.2rem 0.5rem;
+    border-radius: var(--radius-sm);
+    margin-bottom: 0.4rem;
+  }
+
+  .country-card-body h3 {
+    font-size: 1rem;
+    margin-bottom: 0.2rem;
+  }
+  .country-card-body p {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+
+  .no-content-msg {
+    text-align: center;
+    color: var(--color-text-muted);
+    padding: var(--space-xl) 0;
+  }
+
+  @media (max-width: 900px) {
+    .country-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 600px) {
+    .country-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+</file>
+
+<file path="src/utils/articles.ts">
+import { getCollection, type CollectionEntry } from 'astro:content';
+
+type Article = CollectionEntry<'articles'>;
+
+// The three valid section values — Tag 1 must always be one of these.
+export type Section = 'Destinations' | 'Guides' | 'Books';
+
+/**
+ * Returns every published (non-draft) article whose first tag matches
+ * the given section. Used by listing pages and homepage rows —
+ * each section only ever sees its own content, per the locked rule.
+ */
+export async function getArticlesBySection(section: Section): Promise<Article[]> {
+  const all = await getCollection('articles', ({ data }: Article) => !data.draft);
+  return all.filter((article: Article) => article.data.tags[0] === section);
+}
+
+/**
+ * Returns the tags that should actually display on a card, following
+ * the locked display rules:
+ * - Books articles: only tag[1] shows.
+ * - Destinations / Guides articles: tag[1] AND tag[2] show (if tag[2] exists).
+ * - tag[0] (the section) never shows here — only the search results
+ *   page shows tag[0], via getSearchDisplayTags below.
+ */
+export function getCardDisplayTags(article: Article): string[] {
+  const { tags } = article.data;
+  const section = tags[0];
+
+  if (section === 'Books') {
+    return tags[1] ? [tags[1]] : [];
+  }
+
+  // Destinations and Guides: show tag[1] and tag[2], if present.
+  return tags.slice(1, 3);
+}
+
+/**
+ * Same as getCardDisplayTags, but ALSO includes tag[0] (the section) —
+ * used only on the global search results page, so a result's type
+ * (Destination / Guide / Book) is visible alongside its other tags.
+ */
+export function getSearchDisplayTags(article: Article): string[] {
+  return article.data.tags;
+}
+
+/**
+ * Global search: matches a query against ALL of an article's tags
+ * (every position, not just 1-3) plus its title, regardless of
+ * which section the article belongs to. This intentionally ignores
+ * the section boundary that listing pages respect.
+ */
+export async function searchArticles(query: string): Promise<Article[]> {
+  const all = await getCollection('articles', ({ data }: Article) => !data.draft);
+  const lowerQuery = query.toLowerCase().trim();
+
+  if (!lowerQuery) return [];
+
+    return all.filter((article: Article) => {
+    const titleMatch = article.data.title.toLowerCase().includes(lowerQuery);
+    const tagMatch = article.data.tags.some((tag: string) =>
+      tag.toLowerCase().includes(lowerQuery)
+    );
+    return titleMatch || tagMatch;
+  });
+}
+</file>
+
+<file path=".gitignore">
+# build output
+dist/
+# generated types
+.astro/
+
+# dependencies
+node_modules/
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+
+# environment variables
+.env
+.env.production
+
+# macOS-specific files
+.DS_Store
+
+# jetbrains setting folder
+.idea/
+</file>
+
+<file path="AGENTS.md">
+## Development
+
+When starting the dev server, use background mode:
+
+```
+astro dev --background
+```
+
+Manage the background server with `astro dev stop`, `astro dev status`, and `astro dev logs`.
+
+## Documentation
+
+Full documentation: https://docs.astro.build
+
+Consult these guides before working on related tasks:
+
+- [Adding pages, dynamic routes, or middleware](https://docs.astro.build/en/guides/routing/)
+- [Working with Astro components](https://docs.astro.build/en/basics/astro-components/)
+- [Using React, Vue, Svelte, or other framework components](https://docs.astro.build/en/guides/framework-components/)
+- [Adding or managing content](https://docs.astro.build/en/guides/content-collections/)
+- [Adding styles or using Tailwind](https://docs.astro.build/en/guides/styling/)
+- [Supporting multiple languages](https://docs.astro.build/en/guides/internationalization/)
+</file>
+
+<file path="astro.config.mjs">
+// @ts-check
+import { defineConfig } from 'astro/config';
+
+// https://astro.build/config
+export default defineConfig({});
+</file>
+
+<file path="package.json">
+{
+  "name": "world-travel-picks",
+  "type": "module",
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "astro": "^7.2.9"
+  },
+  "allowScripts": {
+    "esbuild": true
+  }
+}
+</file>
+
+<file path="README.md">
+# Astro Starter Kit: Minimal
+
+```sh
+npm create astro@latest -- --template minimal
+```
+
+> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+
+## 🚀 Project Structure
+
+Inside of your Astro project, you'll see the following folders and files:
+
+```text
+/
+├── public/
+├── src/
+│   └── pages/
+│       └── index.astro
+└── package.json
+```
+
+Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+
+There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+
+Any static assets, like images, can be placed in the `public/` directory.
+
+## 🧞 Commands
+
+All commands are run from the root of the project, from a terminal:
+
+| Command                   | Action                                           |
+| :------------------------ | :----------------------------------------------- |
+| `npm install`             | Installs dependencies                            |
+| `npm run dev`             | Starts local dev server at `localhost:4321`      |
+| `npm run build`           | Build your production site to `./dist/`          |
+| `npm run preview`         | Preview your build locally, before deploying     |
+| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
+| `npm run astro -- --help` | Get help using the Astro CLI                     |
+
+## 👀 Want to learn more?
+
+Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+</file>
+
+<file path="tsconfig.json">
+{
+  "extends": "astro/tsconfigs/strict",
+  "include": [".astro/types.d.ts", "**/*"],
+  "exclude": ["dist"]
+}
+</file>
+
+<file path="src/components/ExploreWorld.astro">
+---
+// Homepage "Explore the World" — infinite auto-scrolling marquee of country flags.
+// Auto-scrolls continuously, but the user can click-and-drag to manually scrub.
+// Dragging pauses the auto-scroll; releasing resumes it smoothly.
+
+const countries = [
+  { name: "Japan", flag: "🇯🇵" },
+  { name: "Italy", flag: "🇮🇹" },
+  { name: "Greece", flag: "🇬🇷" },
+  { name: "Switzerland", flag: "🇨🇭" },
+  { name: "Thailand", flag: "🇹🇭" },
+  { name: "Iceland", flag: "🇮🇸" },
+  { name: "Portugal", flag: "🇵🇹" },
+  { name: "Morocco", flag: "🇲🇦" },
+  { name: "France", flag: "🇫🇷" },
+  { name: "Spain", flag: "🇪🇸" },
+  { name: "Turkey", flag: "🇹🇷" },
+  { name: "Peru", flag: "🇵🇪" },
+  { name: "Australia", flag: "🇦🇺" },
+  { name: "Canada", flag: "🇨🇦" },
+  { name: "Germany", flag: "🇩🇪" },
+  { name: "Norway", flag: "🇳🇴" },
+  { name: "Sweden", flag: "🇸🇪" },
+  { name: "Finland", flag: "🇫🇮" },
+  { name: "Denmark", flag: "🇩🇰" },
+  { name: "Netherlands", flag: "🇳🇱" },
+  { name: "Belgium", flag: "🇧🇪" },
+  { name: "Austria", flag: "🇦🇹" },
+  { name: "Ireland", flag: "🇮🇪" },
+  { name: "Scotland", flag: "🏴" },
+  { name: "United Kingdom", flag: "🇬🇧" },
+  { name: "Croatia", flag: "🇭🇷" },
+  { name: "Slovenia", flag: "🇸🇮" },
+  { name: "Poland", flag: "🇵🇱" },
+  { name: "Czechia", flag: "🇨🇿" },
+  { name: "Hungary", flag: "🇭🇺" },
+  { name: "Romania", flag: "🇷🇴" },
+  { name: "Bulgaria", flag: "🇧🇬" },
+  { name: "Malta", flag: "🇲🇹" },
+  { name: "Cyprus", flag: "🇨🇾" },
+  { name: "Egypt", flag: "🇪🇬" },
+  { name: "South Africa", flag: "🇿🇦" },
+  { name: "Kenya", flag: "🇰🇪" },
+  { name: "Tanzania", flag: "🇹🇿" },
+  { name: "Namibia", flag: "🇳🇦" },
+  { name: "Botswana", flag: "🇧🇼" },
+  { name: "Rwanda", flag: "🇷🇼" },
+  { name: "Ghana", flag: "🇬🇭" },
+  { name: "Nigeria", flag: "🇳🇬" },
+  { name: "Tunisia", flag: "🇹🇳" },
+  { name: "Jordan", flag: "🇯🇴" },
+  { name: "United Arab Emirates", flag: "🇦🇪" },
+  { name: "Qatar", flag: "🇶🇦" },
+  { name: "Saudi Arabia", flag: "🇸🇦" },
+  { name: "India", flag: "🇮🇳" },
+  { name: "Nepal", flag: "🇳🇵" },
+  { name: "Sri Lanka", flag: "🇱🇰" },
+  { name: "Bhutan", flag: "🇧🇹" },
+  { name: "Bangladesh", flag: "🇧🇩" },
+  { name: "Vietnam", flag: "🇻🇳" },
+  { name: "Cambodia", flag: "🇰🇭" },
+  { name: "Laos", flag: "🇱🇦" },
+  { name: "Myanmar", flag: "🇲🇲" },
+  { name: "Indonesia", flag: "🇮🇩" },
+  { name: "Malaysia", flag: "🇲🇾" },
+  { name: "Singapore", flag: "🇸🇬" },
+  { name: "Philippines", flag: "🇵🇭" },
+  { name: "South Korea", flag: "🇰🇷" },
+  { name: "China", flag: "🇨🇳" },
+  { name: "Taiwan", flag: "🇹🇼" },
+  { name: "Mongolia", flag: "🇲🇳" },
+  { name: "Kazakhstan", flag: "🇰🇿" },
+  { name: "Georgia", flag: "🇬🇪" },
+  { name: "Armenia", flag: "🇦🇲" },
+  { name: "Azerbaijan", flag: "🇦🇿" },
+  { name: "Russia", flag: "🇷🇺" },
+  { name: "Ukraine", flag: "🇺🇦" },
+  { name: "Estonia", flag: "🇪🇪" },
+  { name: "Latvia", flag: "🇱🇻" },
+  { name: "Lithuania", flag: "🇱🇹" },
+  { name: "United States", flag: "🇺🇸" },
+  { name: "Mexico", flag: "🇲🇽" },
+  { name: "Costa Rica", flag: "🇨🇷" },
+  { name: "Panama", flag: "🇵🇦" },
+  { name: "Belize", flag: "🇧🇿" },
+  { name: "Guatemala", flag: "🇬🇹" },
+  { name: "Cuba", flag: "🇨🇺" },
+  { name: "Jamaica", flag: "🇯🇲" },
+  { name: "Dominican Republic", flag: "🇩🇴" },
+  { name: "Bahamas", flag: "🇧🇸" },
+  { name: "Brazil", flag: "🇧🇷" },
+  { name: "Argentina", flag: "🇦🇷" },
+  { name: "Chile", flag: "🇨🇱" },
+  { name: "Colombia", flag: "🇨🇴" },
+  { name: "Ecuador", flag: "🇪🇨" },
+  { name: "Bolivia", flag: "🇧🇴" },
+  { name: "Uruguay", flag: "🇺🇾" },
+  { name: "Paraguay", flag: "🇵🇾" },
+  { name: "New Zealand", flag: "🇳🇿" },
+  { name: "Fiji", flag: "🇫🇯" },
+  { name: "Samoa", flag: "🇼🇸" },
+  { name: "Maldives", flag: "🇲🇻" },
+  { name: "Seychelles", flag: "🇸🇨" },
+  { name: "Mauritius", flag: "🇲🇺" },
+  { name: "Madagascar", flag: "🇲🇬" },
+  { name: "Ethiopia", flag: "🇪🇹" },
+  { name: "Zambia", flag: "🇿🇲" },
+  { name: "Zimbabwe", flag: "🇿🇼" },
+  { name: "Uganda", flag: "🇺🇬" },
+  { name: "Senegal", flag: "🇸🇳" },
+];
+
+// Duplicated so the manual JS scroll loop can reset seamlessly (see script below).
+const loopedCountries = [...countries, ...countries];
+---
+
+<section class="explore-world">
+  <h2 class="explore-heading">
+    Explore the World
+    <span class="plane">✈️</span>
+  </h2>
+  <p class="explore-subtext">Ideas for your next adventure</p>
+
+  <div class="marquee-wrap" id="marquee-wrap">
+    <div class="marquee-track" id="marquee-track">
+      {
+        loopedCountries.map((country: { name: string; flag: string }) => (
+          <div class="country-item">
+            <span class="country-flag">{country.flag}</span>
+            <span class="country-name">{country.name}</span>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .explore-world {
+    padding: var(--space-xl) 0;
+    max-width: 1400px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .explore-heading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-xs);
+    margin-bottom: 0.2rem;
+    padding: 0 var(--space-md);
+  }
+
+  .plane {
+    font-size: 1.2rem;
+  }
+
+  .explore-subtext {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    margin-bottom: var(--space-md);
+    padding: 0 var(--space-md);
+  }
+
+  .marquee-wrap {
+    overflow: hidden;
+    width: 100%;
+    cursor: grab;
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      black 5%,
+      black 95%,
+      transparent
+    );
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent,
+      black 5%,
+      black 95%,
+      transparent
+    );
+  }
+
+  .marquee-wrap.dragging {
+    cursor: grabbing;
+  }
+
+  .marquee-track {
+    display: flex;
+    gap: var(--space-lg);
+    width: max-content;
+    will-change: transform;
+  }
+
+  .country-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+    flex-shrink: 0;
+    min-width: 70px;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .country-flag {
+    font-size: 1.8rem;
+  }
+
+  .country-name {
+    font-size: 0.8rem;
+    color: var(--color-text);
+    white-space: nowrap;
+  }
+</style>
+
+<script>
+  const wrap = document.getElementById("marquee-wrap");
+  const track = document.getElementById("marquee-track");
+
+  if (wrap && track) {
+    // TypeScript can't tell that `wrap` and `track` stay non-null inside
+    // the functions defined below, so we make that explicit once here.
+    const trackEl: HTMLElement = track;
+    const wrapEl: HTMLElement = wrap;
+    let position = 0;
+    let isDragging = false;
+    let startX = 0;
+    let startPosition = 0;
+    let autoScrollPaused = false;
+
+    // Half the track's width = width of ONE full (non-duplicated) list.
+    // Once we've scrolled past that point, we silently jump back by
+    // that same amount — since the second copy is identical, this
+    // jump is invisible to the eye, creating the infinite loop.
+    function getLoopWidth() {
+      return trackEl.scrollWidth / 2;
+    }
+
+    function applyPosition() {
+      const loopWidth = getLoopWidth();
+      // Keep position within a safe looping range (handles both directions)
+      if (position <= -loopWidth) position += loopWidth;
+      if (position > 0) position -= loopWidth;
+      trackEl.style.transform = `translateX(${position}px)`;
+    }
+
+    // Slow, continuous auto-scroll (reduced speed per request)
+    const SPEED = 0.35; // pixels per frame — lower is slower
+    function autoScrollStep() {
+      if (!isDragging && !autoScrollPaused) {
+        position -= SPEED;
+        applyPosition();
+      }
+      requestAnimationFrame(autoScrollStep);
+    }
+    requestAnimationFrame(autoScrollStep);
+
+    // --- Drag handling (mouse) ---
+    function startDrag(clientX: number) {
+      isDragging = true;
+      startX = clientX;
+      startPosition = position;
+      wrapEl.classList.add("dragging");
+    }
+
+    function duringDrag(clientX: number) {
+      if (!isDragging) return;
+      const delta = clientX - startX;
+      position = startPosition + delta;
+      applyPosition();
+    }
+
+    function endDrag() {
+      if (!isDragging) return;
+      isDragging = false;
+      wrapEl.classList.remove("dragging");
+    }
+
+    wrapEl.addEventListener("mousedown", (e) => startDrag(e.clientX));
+    window.addEventListener("mousemove", (e) => duringDrag(e.clientX));
+    window.addEventListener("mouseup", endDrag);
+
+    // --- Drag handling (touch, for mobile) ---
+    wrapEl.addEventListener(
+      "touchstart",
+      (e) => startDrag(e.touches[0].clientX),
+      { passive: true },
+    );
+    wrapEl.addEventListener(
+      "touchmove",
+      (e) => duringDrag(e.touches[0].clientX),
+      { passive: true },
+    );
+    wrapEl.addEventListener("touchend", endDrag);
+  }
+</script>
+</file>
+
+<file path="src/components/Footer.astro">
+---
+// Site-wide footer. Uses the confirmed social links, KDP placeholder,
+// and the locked column structure.
+
+const socialLinks = [
+  { name: "Facebook", href: "https://www.facebook.com/worldtravelpicks" },
+  {
+    name: "Instagram",
+    href: "https://www.instagram.com/worldtravelpicksofficial",
+  },
+  { name: "Pinterest", href: "https://www.pinterest.com/worldtravelpicks" },
+  { name: "YouTube", href: "https://www.youtube.com/@WorldTravelPicks" },
+  { name: "Email", href: "mailto:hello@worldtravelpicks.com" },
+];
+
+const kdpStoreUrl = ""; // TODO: same KDP URL as Header — fill in once published
+
+const currentYear = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="footer-logo">
+          <span>World Travel Picks</span>
+        </div>
+        <p class="footer-blurb">
+          Exploring the world through research-driven storytelling. Your trusted
+          companion for budget travel, epic road trips, and unforgettable
+          destinations.
+        </p>
+        <div class="footer-social">
+          {
+            socialLinks.map((link) => (
+              <a
+                href={link.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={link.name}
+                class="social-icon"
+              >
+                <span class="visually-hidden">{link.name}</span>
+                {link.name === "Facebook" && (
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                  >
+                    <path d="M22 12a10 10 0 1 0-11.6 9.9v-7H7.9V12h2.5V9.8c0-2.5 1.5-3.9 3.8-3.9 1.1 0 2.2.2 2.2.2v2.4h-1.3c-1.2 0-1.6.8-1.6 1.6V12h2.8l-.4 2.9h-2.4v7A10 10 0 0 0 22 12Z" />
+                  </svg>
+                )}
+                {link.name === "Instagram" && (
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <rect x="2" y="2" width="20" height="20" rx="5" />
+                    <circle cx="12" cy="12" r="4" />
+                    <circle cx="17.5" cy="6.5" r="1" />
+                  </svg>
+                )}
+                {link.name === "Pinterest" && (
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                  >
+                    <path d="M12 2a10 10 0 0 0-3.6 19.3c0-.8-.1-2 .1-2.8l1.3-5.5s-.3-.7-.3-1.6c0-1.5.9-2.7 2-2.7.9 0 1.4.7 1.4 1.6 0 1-.6 2.4-1 3.7-.2 1 .5 1.9 1.6 1.9 1.9 0 3.2-2.4 3.2-5.3 0-2.2-1.5-3.8-4.1-3.8-3 0-4.9 2.2-4.9 4.7 0 .8.3 1.4.7 1.9.2.2.2.3.1.5l-.3.9c0 .2-.2.3-.4.2-1.1-.5-1.7-1.9-1.7-3.4 0-2.5 2.1-5.5 6.2-5.5 3.3 0 5.5 2.4 5.5 4.9 0 3.4-1.9 5.9-4.6 5.9-.9 0-1.8-.5-2.1-1l-.6 2.2c-.2.8-.6 1.7-1 2.3.9.3 1.8.4 2.8.4a10 10 0 0 0 0-20Z" />
+                  </svg>
+                )}
+                {link.name === "YouTube" && (
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                  >
+                    <path d="M23 12s0-3.5-.4-5.2a3 3 0 0 0-2.1-2.1C18.8 4.3 12 4.3 12 4.3s-6.8 0-8.5.4A3 3 0 0 0 1.4 6.8C1 8.5 1 12 1 12s0 3.5.4 5.2a3 3 0 0 0 2.1 2.1c1.7.4 8.5.4 8.5.4s6.8 0 8.5-.4a3 3 0 0 0 2.1-2.1C23 15.5 23 12 23 12ZM9.8 15.5V8.5L15.8 12l-6 3.5Z" />
+                  </svg>
+                )}
+                {link.name === "Email" && (
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <rect x="2" y="4" width="20" height="16" rx="2" />
+                    <path
+                      d="M2 6l10 7L22 6"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                )}
+              </a>
+            ))
+          }
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <h4>Navigate</h4>
+        <a href="/">Home</a>
+        <a href="/books">Books</a>
+        <a href="/guides">Guides</a>
+        <a href={kdpStoreUrl || "#"} target="_blank" rel="noopener noreferrer"
+          >KDP Store ↗</a
+        >
+        <a href="/about-us">About Us</a>
+        <a href="/contact-us">Contact Us</a>
+        <a href="/contact-form">Contact Form</a>
+        <a href="/whats-new">What's New</a>
+      </div>
+
+      <div class="footer-col">
+        <h4>KDP Books Articles</h4>
+        <a href="/books/kids-adventure-series">Kids Adventure Series</a>
+        <a href="/books/explorer-series">Explorer Series</a>
+      </div>
+
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <a href="/cookie-policy">Cookie Policy</a>
+        <a href="/privacy-policy">Privacy Policy</a>
+        <a href="/terms-of-service">Terms of Service</a>
+      </div>
+
+      <div class="footer-col">
+        <h4>Reading</h4>
+        <a href="/reading">Continue Reading</a>
+        <a href="/reading?tab=history">Recently Read Articles</a>
+        <a href="/reading?tab=saved">Saved Articles</a>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>© {currentYear} World Travel Picks. All Rights Reserved.</p>
+      <p>Made with <span class="heart">♥</span> for explorers everywhere.</p>
+      <a href="#cookie-settings">Cookie Settings</a>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background-color: var(--color-surface-secondary);
+    border-top: 1px solid var(--color-border);
+    margin-top: var(--space-2xl);
+  }
+
+  .footer-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: var(--space-xl) var(--space-md) var(--space-md);
+  }
+
+  .footer-top {
+    display: grid;
+    grid-template-columns: 1.8fr repeat(4, 1fr);
+    gap: var(--space-lg);
+    padding-bottom: var(--space-lg);
+  }
+
+  .footer-logo {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    margin-bottom: var(--space-sm);
+  }
+
+  .footer-logo img {
+    width: 24px;
+    height: 24px;
+  }
+
+  .footer-logo span {
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: var(--color-text-strong);
+  }
+
+  .footer-blurb {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    max-width: 320px;
+    margin-bottom: var(--space-sm);
+  }
+
+  .footer-social {
+    display: flex;
+    gap: var(--space-xs);
+  }
+
+  .social-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background-color: var(--color-text-strong);
+    color: var(--color-bg);
+    transition: opacity 0.15s ease;
+  }
+
+  .social-icon:hover {
+    opacity: 0.8;
+  }
+
+  .footer-col {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .footer-col h4 {
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-strong);
+    margin-bottom: 0.2rem;
+  }
+
+  .footer-col a {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    transition: color 0.15s ease;
+  }
+
+  .footer-col a:hover {
+    color: var(--color-text);
+  }
+
+  .footer-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--color-border);
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    flex-wrap: wrap;
+  }
+
+  .heart {
+    color: var(--color-accent);
+  }
+
+  .footer-bottom a {
+    color: var(--color-text-muted);
+  }
+
+  .footer-bottom a:hover {
+    color: var(--color-text);
+  }
+
+  @media (max-width: 900px) {
+    .footer-top {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .footer-top {
+      grid-template-columns: 1fr;
+    }
+    .footer-bottom {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+</style>
+</file>
+
+<file path="src/components/ListingFilterBar.astro">
+---
+const regions = [
+  "All Regions",
+  "Africa",
+  "Antarctica",
+  "Asia",
+  "Europe",
+  "North America",
+  "Oceania",
+  "South America",
+];
+
+const seriesOptions = [
+  "All Series",
+  "Kids Adventure Series",
+  "Explorer Series",
+];
+
+// Only the Books page passes this prop — Region always shows, Series
+// only shows when explicitly requested.
+const { showSeries = false } = Astro.props;
+
+const sortOptions = [
+  { value: "newest", label: "Sort: Newest" },
+  { value: "oldest", label: "Sort: Oldest" },
+];
+---
+
+<div class="listing-filter-bar">
+  <div class="filter-search">
+    <svg width="16" height="16" viewBox="0 0 18 18" fill="none">
+      <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"
+      ></circle>
+      <path
+        d="M16 16L12.5 12.5"
+        stroke="currentColor"
+        stroke-width="1.5"
+        stroke-linecap="round"></path>
+    </svg>
+    <input type="text" id="listing-search-input" placeholder="Search..." />
+  </div>
+
+  <div class="filter-dropdown" data-dropdown="region">
+    <button class="filter-dropdown-trigger" type="button">
+      <span id="region-selected-label">All Regions</span>
+      <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
+        <path
+          d="M1 1L5 5L9 1"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"></path>
+      </svg>
+    </button>
+    <div class="filter-dropdown-menu">
+      {
+        regions.map((region) => (
+          <button
+            class="filter-dropdown-item"
+            data-value={region}
+            type="button"
+          >
+            {region}
+          </button>
+        ))
+      }
+    </div>
+  </div>
+
+  {
+    showSeries && (
+      <div class="filter-dropdown" data-dropdown="series">
+        <button class="filter-dropdown-trigger" type="button">
+          <span id="series-selected-label">All Series</span>
+          <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
+            <path
+              d="M1 1L5 5L9 1"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
+        <div class="filter-dropdown-menu">
+          {seriesOptions.map((s) => (
+            <button class="filter-dropdown-item" data-value={s} type="button">
+              {s}
+            </button>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  <div class="filter-dropdown" data-dropdown="sort">
+    <button class="filter-dropdown-trigger" type="button">
+      <span id="sort-selected-label">Sort: Newest</span>
+      <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
+        <path
+          d="M1 1L5 5L9 1"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"></path>
+      </svg>
+    </button>
+    <div class="filter-dropdown-menu">
+      {
+        sortOptions.map((opt) => (
+          <button
+            class="filter-dropdown-item"
+            data-value={opt.value}
+            type="button"
+          >
+            {opt.label}
+          </button>
+        ))
+      }
+    </div>
+  </div>
+
+  <div class="view-toggle">
+    <span class="view-label">View:</span>
+    <button class="view-btn active" id="view-grid-btn" aria-label="Grid view">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <rect
+          x="1"
+          y="1"
+          width="6"
+          height="6"
+          rx="1"
+          stroke="currentColor"
+          stroke-width="1.3"></rect>
+        <rect
+          x="9"
+          y="1"
+          width="6"
+          height="6"
+          rx="1"
+          stroke="currentColor"
+          stroke-width="1.3"></rect>
+        <rect
+          x="1"
+          y="9"
+          width="6"
+          height="6"
+          rx="1"
+          stroke="currentColor"
+          stroke-width="1.3"></rect>
+        <rect
+          x="9"
+          y="9"
+          width="6"
+          height="6"
+          rx="1"
+          stroke="currentColor"
+          stroke-width="1.3"></rect>
+      </svg>
+    </button>
+    <button class="view-btn" id="view-list-btn" aria-label="List view">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path
+          d="M1 3H15M1 8H15M1 13H15"
+          stroke="currentColor"
+          stroke-width="1.3"
+          stroke-linecap="round"></path>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<style>
+  .listing-filter-bar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: var(--space-md) var(--space-md) 0;
+    flex-wrap: wrap;
+    position: relative;
+  }
+
+  .filter-search {
+    flex: 1;
+    min-width: 220px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    padding: 0.7rem 1.1rem;
+    color: var(--color-text-muted);
+    transition: border-color 0.15s ease;
+  }
+
+  .filter-search:focus-within {
+    border-color: var(--color-button-bg);
+  }
+
+  .filter-search input {
+    border: none;
+    outline: none;
+    background: none;
+    flex: 1;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    color: var(--color-text);
+  }
+
+  .filter-dropdown {
+    position: relative;
+  }
+
+  .filter-dropdown-trigger {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    padding: 0.7rem 1.1rem;
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--color-text);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: border-color 0.15s ease;
+  }
+
+  .filter-dropdown-trigger:hover,
+  .filter-dropdown.open .filter-dropdown-trigger {
+    border-color: var(--color-button-bg);
+  }
+
+  .filter-dropdown-trigger svg {
+    color: var(--color-text-muted);
+    transition: transform 0.15s ease;
+  }
+
+  .filter-dropdown.open .filter-dropdown-trigger svg {
+    transform: rotate(180deg);
+  }
+
+  .filter-dropdown-menu {
+    position: absolute;
+    top: calc(100% + var(--space-xs));
+    left: 0;
+    min-width: 180px;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    padding: var(--space-xs);
+    display: none;
+    flex-direction: column;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    z-index: 20;
+  }
+
+  .filter-dropdown.open .filter-dropdown-menu {
+    display: flex;
+  }
+
+  .filter-dropdown-item {
+    background: none;
+    border: none;
+    text-align: left;
+    color: var(--color-text);
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+  }
+
+  .filter-dropdown-item:hover {
+    background-color: var(--color-surface-secondary);
+  }
+
+  .filter-dropdown-item.selected {
+    color: var(--color-button-bg);
+    font-weight: 600;
+  }
+
+  .view-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .view-label {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    margin-right: 0.2rem;
+  }
+
+  .view-btn {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    color: var(--color-text-muted);
+    cursor: pointer;
+  }
+
+  .view-btn.active {
+    background-color: var(--color-surface-secondary);
+    color: var(--color-text);
+    border-color: var(--color-text-muted);
+  }
+</style>
+
+<script>
+  // --- Custom dropdowns (Region, Sort) ---
+  // Same open/close pattern as the Header's Books/Categories dropdowns.
+  const dropdowns = document.querySelectorAll(".filter-dropdown");
+
+  dropdowns.forEach((dropdown) => {
+    const trigger = dropdown.querySelector(".filter-dropdown-trigger");
+    const items = dropdown.querySelectorAll(".filter-dropdown-item");
+    const type = dropdown.getAttribute("data-dropdown"); // "region" or "sort"
+
+    trigger?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const isOpen = dropdown.classList.contains("open");
+      dropdowns.forEach((d) => d.classList.remove("open"));
+      if (!isOpen) dropdown.classList.add("open");
+    });
+
+    items.forEach((item) => {
+      item.addEventListener("click", () => {
+        const value = item.getAttribute("data-value") || "";
+        const label = item.textContent || "";
+
+        items.forEach((i) => i.classList.remove("selected"));
+        item.classList.add("selected");
+
+        const labelEl = document.getElementById(`${type}-selected-label`);
+        if (labelEl) labelEl.textContent = label;
+
+        dropdown.classList.remove("open");
+
+        if (type === "region") {
+          document.dispatchEvent(
+            new CustomEvent("listing-region-change", { detail: value }),
+          );
+        } else if (type === "sort") {
+          document.dispatchEvent(
+            new CustomEvent("listing-sort-change", { detail: value }),
+          );
+        } else if (type === "series") {
+          document.dispatchEvent(
+            new CustomEvent("listing-series-change", { detail: value }),
+          );
+        }
+      });
+    });
+  });
+
+  document.addEventListener("click", () => {
+    dropdowns.forEach((d) => d.classList.remove("open"));
+  });
+
+  // --- Grid/List view toggle (unchanged) ---
+  const gridBtn = document.getElementById("view-grid-btn");
+  const listBtn = document.getElementById("view-list-btn");
+
+  gridBtn?.addEventListener("click", () => {
+    gridBtn.classList.add("active");
+    listBtn?.classList.remove("active");
+    document.dispatchEvent(
+      new CustomEvent("listing-view-change", { detail: "grid" }),
+    );
+  });
+
+  listBtn?.addEventListener("click", () => {
+    listBtn.classList.add("active");
+    gridBtn?.classList.remove("active");
+    document.dispatchEvent(
+      new CustomEvent("listing-view-change", { detail: "list" }),
+    );
+  });
+
+  // --- Search input (unchanged) ---
+  const searchInput = document.getElementById(
+    "listing-search-input",
+  ) as HTMLInputElement;
+  searchInput?.addEventListener("input", () => {
+    document.dispatchEvent(
+      new CustomEvent("listing-search-change", { detail: searchInput.value }),
+    );
+  });
+</script>
+</file>
+
+<file path="src/components/ListingHero.astro">
+---
+import { Image } from "astro:assets";
+
+const { eyebrow, heading, description, imageUrl, imageAlt = "" } = Astro.props;
+---
+
+<section class="listing-hero">
+  {
+    imageUrl && (
+      <>
+        <Image
+          src={imageUrl}
+          alt={imageAlt}
+          width={1600}
+          height={500}
+          format="webp"
+          quality={80}
+          class="listing-hero-bg"
+        />
+        <div class="listing-hero-overlay" />
+      </>
+    )
+  }
+
+  <div class="listing-hero-inner">
+    <p class="listing-eyebrow">{eyebrow}</p>
+    <h1>{heading}</h1>
+    <p class="listing-desc">{description}</p>
+  </div>
+</section>
+
+<style>
+  .listing-hero {
+    position: relative;
+    background-color: var(--color-bg-dark);
+    padding: var(--space-lg) var(--space-md);
+    overflow: hidden;
+  }
+
+  .listing-hero-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+  }
+
+  .listing-hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      rgba(20, 21, 21, 0.8) 0%,
+      rgba(20, 21, 21, 0.5) 60%,
+      rgba(20, 21, 21, 0.25) 100%
+    );
+    z-index: 1;
+  }
+
+  .listing-hero-inner {
+    position: relative;
+    z-index: 2;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .listing-eyebrow {
+    color: var(--color-accent);
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: var(--space-xs);
+  }
+
+  .listing-hero h1 {
+    color: #ffffff;
+    font-size: 2.2rem;
+    max-width: 600px;
+    margin-bottom: var(--space-xs);
+  }
+
+  .listing-desc {
+    color: rgba(255, 255, 255, 0.8);
+    max-width: 550px;
+    margin: 0;
+  }
+</style>
+</file>
+
+<file path="src/content/articles/germany-bavaria-guide.md">
+---
+title: "Bavaria Road Trip: Castles, Alps, and Beer Gardens"
+description: "A scenic route through southern Germany's most storybook region."
+coverImage: "https://images.unsplash.com/photo-1467269204594-9661b134dd2b?w=800"
+author: "World Travel Picks"
+publishDate: 2026-06-10
+readTime: "7 min read"
+tags: ["Guides", "Germany", "Bavaria"]
+---
+
+Bavaria is Germany's most storybook region, blending fairytale castles with alpine scenery and cozy beer gardens.
+
+## Neuschwanstein Castle
+
+This 19th-century castle is the inspiration behind Disney's Sleeping Beauty castle, sitting dramatically on a hilltop above the village of Hohenschwangau.
+
+## The Bavarian Alps
+
+Stretching along the southern border, the Bavarian Alps offer hiking, skiing, and some of the most dramatic mountain views in Europe.
+
+## Munich's Beer Gardens
+
+No trip to Bavaria is complete without an afternoon at a traditional beer garden, enjoying local brews and pretzels in the sun.
+</file>
+
+<file path="src/content/articles/kids-japan-adventure.md">
+---
+title: "Japan: The Complete Kids Adventure Guide"
+description: "A fun, family-friendly journey through Japan's best kid-approved sights."
+coverImage: "https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=800"
+author: "World Travel Picks"
+publishDate: 2026-08-20
+readTime: "8 min read"
+tags: ["Books", "Kids Adventure Series", "Japan"]
+---
+
+Japan is a wonderful destination for families, with safe streets, fun activities, and sights that spark kids' imaginations.
+
+## Tokyo Disneyland & DisneySea
+
+A magical stop for kids of all ages, with attractions found nowhere else in the world.
+
+## Osaka Aquarium
+
+One of the largest aquariums in the world, home to whale sharks and playful otters.
+
+## Nara's Friendly Deer Park
+
+Kids love feeding the wild, freely-roaming deer that wander through Nara Park.
+</file>
+
+<file path="src/pages/articles/[...slug].astro">
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getCollection, render } from "astro:content";
+import {
+  getCardDisplayTags,
+  getArticlesBySection,
+  type Section,
+} from "../../utils/articles";
+
+// This function tells Astro exactly which pages to generate —
+// one for every article in our content collection.
+export async function getStaticPaths() {
+  const articles = await getCollection("articles", ({ data }) => !data.draft);
+  return articles.map((article) => ({
+    params: { slug: article.id },
+    props: { article },
+  }));
+}
+
+const { article } = Astro.props;
+const { Content, headings } = await render(article);
+
+const section = article.data.tags[0] as Section;
+const displayTags = getCardDisplayTags(article);
+
+// Related articles: same section, excluding this one, max 3.
+const sectionArticles = await getArticlesBySection(section);
+const relatedArticles = sectionArticles
+  .filter((a) => a.id !== article.id)
+  .slice(0, 3);
+
+// Breadcrumb label per section, matching the site's naming.
+const sectionLabels: Record<Section, string> = {
+  Destinations: "Destinations",
+  Guides: "Guides",
+  Books: "Books",
+};
+const sectionHref: Record<Section, string> = {
+  Destinations: "/destinations",
+  Guides: "/guides",
+  Books: "/books",
+};
+---
+
+<BaseLayout
+  title={`${article.data.title} — World Travel Picks`}
+  description={article.data.description}
+  image={article.data.coverImage}
+>
+  <div class="article-page">
+    <nav class="breadcrumbs">
+      <a href="/">Home</a>
+      <span>/</span>
+      <a href={sectionHref[section]}>{sectionLabels[section]}</a>
+      <span>/</span>
+      <span class="current">{article.data.title}</span>
+    </nav>
+
+    <div class="article-layout">
+      <main class="article-main">
+        {displayTags[0] && <span class="tag-pill">{displayTags[0]}</span>}
+        <h1>{article.data.title}</h1>
+        <p class="article-desc">{article.data.description}</p>
+
+        <div class="article-meta">
+          <span>{article.data.readTime}</span>
+          <span>·</span>
+          <span>{article.data.publishDate.toDateString()}</span>
+          <span>·</span>
+          <span>By {article.data.author}</span>
+        </div>
+
+        <div class="progress-track">
+          <div class="progress-fill" id="reading-progress-fill"></div>
+        </div>
+
+        <img
+          src={article.data.coverImage}
+          alt={article.data.title}
+          class="article-cover"
+        />
+
+        {
+          section !== "Books" && article.data.quickFacts && (
+            <div class="travel-info">
+              {article.data.quickFacts.bestTimeToVisit && (
+                <div class="travel-info-item">
+                  <span class="label">Best Time to Visit</span>
+                  <span class="value">
+                    {article.data.quickFacts.bestTimeToVisit}
+                  </span>
+                </div>
+              )}
+              {article.data.quickFacts.language && (
+                <div class="travel-info-item">
+                  <span class="label">Language</span>
+                  <span class="value">{article.data.quickFacts.language}</span>
+                </div>
+              )}
+              {article.data.quickFacts.currency && (
+                <div class="travel-info-item">
+                  <span class="label">Currency</span>
+                  <span class="value">{article.data.quickFacts.currency}</span>
+                </div>
+              )}
+              {article.data.quickFacts.timeZone && (
+                <div class="travel-info-item">
+                  <span class="label">Time Zone</span>
+                  <span class="value">{article.data.quickFacts.timeZone}</span>
+                </div>
+              )}
+            </div>
+          )
+        }
+
+        {
+          section !== "Books" && (
+            <div class="travel-tip">
+              <span class="tip-icon">💡</span>
+              <p>
+                <strong>Travel Tip:</strong> Research local customs and
+                transportation options before you go — it'll save you time and
+                make your trip smoother.
+              </p>
+            </div>
+          )
+        }
+
+        <div class="article-body">
+          <Content />
+        </div>
+
+        <div class="prev-next-row">
+          {
+            relatedArticles[0] && (
+              <a
+                href={`/articles/${relatedArticles[0].id}`}
+                class="prev-next-link prev"
+              >
+                <span>← Previous Article</span>
+                <strong>{relatedArticles[0].data.title}</strong>
+              </a>
+            )
+          }
+          {
+            relatedArticles[1] && (
+              <a
+                href={`/articles/${relatedArticles[1].id}`}
+                class="prev-next-link next"
+              >
+                <span>Next Article →</span>
+                <strong>{relatedArticles[1].data.title}</strong>
+              </a>
+            )
+          }
+        </div>
+      </main>
+
+      <aside class="article-sidebar">
+        <div class="sidebar-box author-box">
+          <h4>About the Author</h4>
+          <div class="accordion-content">
+            <div class="author-row">
+              <div class="author-avatar">{article.data.author.charAt(0)}</div>
+              <div>
+                <strong>{article.data.author}</strong>
+                <p>Sharing research-driven travel stories and guides.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {
+          headings.length > 0 && (
+            <div class="sidebar-box toc-box">
+              <h4>Table of Contents</h4>
+              <nav id="toc-nav">
+                {headings
+                  .filter((h) => h.depth === 2)
+                  .map((heading, i) => (
+                    <a href={`#${heading.slug}`} data-slug={heading.slug}>
+                      {String(i + 1).padStart(2, "0")}. {heading.text}
+                    </a>
+                  ))}
+              </nav>
+            </div>
+          )
+        }
+
+        <div class="sidebar-box share-box">
+          <h4>Share this article</h4>
+          <div class="accordion-content">
+            <div class="share-icons">
+              <a
+                href="#"
+                class="share-icon"
+                id="share-whatsapp"
+                aria-label="Share on WhatsApp"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  ><path
+                    d="M17.5 14.4c-.3-.1-1.7-.9-2-1-.3-.1-.5-.1-.6.1-.2.3-.7 1-.9 1.1-.1.2-.3.2-.6.1-.3-.2-1.2-.5-2.3-1.5-.9-.8-1.4-1.7-1.6-2-.2-.3 0-.5.1-.6l.4-.5c.1-.1.2-.3.2-.4.1-.2 0-.3 0-.5l-.9-2.1c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.5.1-.7.3-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 4.9 4.3.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.5-.1 1.7-.7 2-1.4.2-.7.2-1.2.2-1.4 0-.1-.2-.2-.5-.3ZM12 2a10 10 0 0 0-8.6 15L2 22l5.1-1.3A10 10 0 1 0 12 2Zm0 18.2c-1.6 0-3.1-.4-4.4-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 20.2 12 8.2 8.2 0 0 1 12 20.2Z"
+                  ></path></svg
+                >
+              </a>
+              <a
+                href="#"
+                class="share-icon"
+                id="share-facebook"
+                aria-label="Share on Facebook"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  ><path
+                    d="M22 12a10 10 0 1 0-11.6 9.9v-7H7.9V12h2.5V9.8c0-2.5 1.5-3.9 3.8-3.9 1.1 0 2.2.2 2.2.2v2.4h-1.3c-1.2 0-1.6.8-1.6 1.6V12h2.8l-.4 2.9h-2.4v7A10 10 0 0 0 22 12Z"
+                  ></path></svg
+                >
+              </a>
+              <a
+                href="#"
+                class="share-icon"
+                id="share-pinterest"
+                aria-label="Share on Pinterest"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  ><path
+                    d="M12 2a10 10 0 0 0-3.6 19.3c0-.8-.1-2 .1-2.8l1.3-5.5s-.3-.7-.3-1.6c0-1.5.9-2.7 2-2.7.9 0 1.4.7 1.4 1.6 0 1-.6 2.4-1 3.7-.2 1 .5 1.9 1.6 1.9 1.9 0 3.2-2.4 3.2-5.3 0-2.2-1.5-3.8-4.1-3.8-3 0-4.9 2.2-4.9 4.7 0 .8.3 1.4.7 1.9.2.2.2.3.1.5l-.3.9c0 .2-.2.3-.4.2-1.1-.5-1.7-1.9-1.7-3.4 0-2.5 2.1-5.5 6.2-5.5 3.3 0 5.5 2.4 5.5 4.9 0 3.4-1.9 5.9-4.6 5.9-.9 0-1.8-.5-2.1-1l-.6 2.2c-.2.8-.6 1.7-1 2.3.9.3 1.8.4 2.8.4a10 10 0 0 0 0-20Z"
+                  ></path></svg
+                >
+              </a>
+              <a
+                href="#"
+                class="share-icon"
+                id="share-x"
+                aria-label="Share on X"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  ><path
+                    d="M18.9 2h3.3l-7.2 8.2L23.5 22h-6.6l-5.2-6.8L5.7 22H2.4l7.7-8.8L1.5 2h6.8l4.7 6.2L18.9 2Zm-1.2 18h1.8L7.1 3.9H5.2L17.7 20Z"
+                  ></path></svg
+                >
+              </a>
+              <button
+                class="share-icon"
+                id="share-copy"
+                aria-label="Copy link"
+                type="button"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  ><rect x="9" y="9" width="12" height="12" rx="2"></rect><path
+                    d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
+                  ></path></svg
+                >
+              </button>
+              <button
+                class="share-icon"
+                id="share-native"
+                aria-label="Share"
+                type="button"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  ><circle cx="18" cy="5" r="3"></circle><circle
+                    cx="6"
+                    cy="12"
+                    r="3"></circle><circle cx="18" cy="19" r="3"></circle><path
+                    d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"></path></svg
+                >
+              </button>
+            </div>
+            <span id="copy-confirm" class="copy-confirm">Link copied!</span>
+          </div>
+        </div>
+
+        {
+          relatedArticles.length > 0 && (
+            <div class="sidebar-box related-box">
+              <h4>Related Articles</h4>
+              <div class="accordion-content">
+                <div class="related-list">
+                  {relatedArticles.map((related) => (
+                    <a href={`/articles/${related.id}`} class="related-item">
+                      <img
+                        src={related.data.coverImage}
+                        alt={related.data.title}
+                      />
+                      <div>
+                        <span>{related.data.title}</span>
+                        <small>{related.data.readTime}</small>
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )
+        }
+      </aside>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .article-page {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: var(--space-md);
+  }
+
+  .breadcrumbs {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-md);
+  }
+
+  .breadcrumbs a {
+    color: var(--color-text-muted);
+  }
+  .breadcrumbs a:hover {
+    color: var(--color-text);
+  }
+  .breadcrumbs .current {
+    color: var(--color-text);
+  }
+
+  .article-layout {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: var(--space-lg);
+    align-items: start;
+  }
+
+  .tag-pill {
+    display: inline-block;
+    background-color: var(--color-accent);
+    color: var(--color-text-strong);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 0.25rem 0.6rem;
+    border-radius: var(--radius-sm);
+    margin-bottom: var(--space-xs);
+  }
+
+  .article-main h1 {
+    font-size: 2rem;
+    margin-bottom: var(--space-xs);
+  }
+  .article-desc {
+    color: var(--color-text-muted);
+    font-size: 1rem;
+    margin-bottom: var(--space-sm);
+  }
+
+  .article-meta {
+    display: flex;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-sm);
+  }
+
+  .progress-track {
+    height: 4px;
+    background-color: var(--color-border);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: var(--space-md);
+  }
+
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    background-color: var(--color-button-bg);
+    transition: width 0.1s ease;
+  }
+
+  .article-cover {
+    width: 100%;
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-md);
+  }
+
+  .article-body {
+    font-size: 1rem;
+    line-height: 1.75;
+  }
+  .article-body :global(h2) {
+    font-size: 1.4rem;
+    margin-top: var(--space-lg);
+  }
+  .article-body :global(p) {
+    color: var(--color-text);
+    margin-bottom: var(--space-sm);
+  }
+
+  /* Blockquotes (pull quotes) — theme-aware, both light & dark */
+  .article-body :global(blockquote) {
+    background-color: var(--color-surface-secondary);
+    border-left: 3px solid var(--color-accent);
+    border-radius: var(--radius-sm);
+    padding: var(--space-sm) var(--space-md);
+    margin: var(--space-md) 0;
+    font-family: var(--font-heading);
+    font-style: italic;
+    font-size: 1.1rem;
+    color: var(--color-text);
+  }
+
+  .article-body :global(blockquote p) {
+    margin: 0;
+  }
+
+  /* Travel Tip callout box */
+  .travel-tip {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-sm);
+    background-color: var(--color-surface-secondary);
+    border-radius: var(--radius-md);
+    padding: var(--space-sm) var(--space-md);
+    margin: var(--space-md) 0;
+    font-size: 0.9rem;
+  }
+
+  .travel-tip .tip-icon {
+    flex-shrink: 0;
+    font-size: 1.2rem;
+  }
+  .travel-tip strong {
+    color: var(--color-text-strong);
+  }
+  .travel-tip p {
+    margin: 0;
+    color: var(--color-text);
+  }
+
+  /* Travel Info box (Best Time, Language, Currency, Time Zone) */
+  .travel-info {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-sm);
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-sm) var(--space-md);
+    margin: var(--space-md) 0;
+  }
+
+  .travel-info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+  .travel-info-item .label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--color-text-muted);
+  }
+  .travel-info-item .value {
+    font-size: 0.85rem;
+    color: var(--color-text);
+  }
+
+  @media (max-width: 600px) {
+    .travel-info {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .prev-next-row {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-md);
+    margin-top: var(--space-lg);
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .prev-next-link {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    max-width: 45%;
+  }
+  .prev-next-link.next {
+    text-align: right;
+    margin-left: auto;
+  }
+  .prev-next-link span {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+  }
+  .prev-next-link strong {
+    font-size: 0.9rem;
+    color: var(--color-text);
+  }
+
+  /* --- Sidebar (desktop) --- */
+  .article-sidebar {
+    position: sticky;
+    top: calc(var(--space-md) + 60px);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .sidebar-box {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+  }
+
+  .sidebar-box h4 {
+    font-size: 0.9rem;
+    margin-bottom: var(--space-sm);
+  }
+
+  .author-row {
+    display: flex;
+    gap: var(--space-sm);
+    align-items: flex-start;
+  }
+  .author-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: var(--color-button-bg);
+    color: var(--color-button-text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .author-row strong {
+    font-size: 0.85rem;
+    display: block;
+    margin-bottom: 0.2rem;
+  }
+  .author-row p {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+
+  .toc-box nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .toc-box nav a {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+  }
+  .toc-box nav a:hover,
+  .toc-box nav a.active {
+    color: var(--color-accent);
+    font-weight: 600;
+  }
+
+  .share-icons {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .copy-confirm {
+    display: none;
+    font-size: 0.8rem;
+    color: var(--color-button-bg);
+    margin-top: 0.5rem;
+  }
+
+  .copy-confirm.show {
+    display: block;
+  }
+  .share-icon {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-surface-secondary);
+    border-radius: 50%;
+    color: var(--color-text);
+  }
+
+  .related-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+  .related-item {
+    display: flex;
+    gap: var(--space-xs);
+    align-items: center;
+  }
+  .related-item img {
+    width: 56px;
+    height: 56px;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+    flex-shrink: 0;
+  }
+  .related-item span {
+    font-size: 0.82rem;
+    color: var(--color-text);
+    font-weight: 600;
+    display: block;
+  }
+  .related-item small {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+  }
+
+  /* --- Mobile: sidebar becomes accordions below the article --- */
+  @media (max-width: 950px) {
+    .article-layout {
+      grid-template-columns: 1fr;
+    }
+
+    .article-sidebar {
+      position: static;
+    }
+
+    /* TOC is explicitly dropped on mobile, per instructions */
+    .toc-box {
+      display: none;
+    }
+
+    .sidebar-box {
+      border: none;
+      border-top: 1px solid var(--color-border);
+      border-radius: 0;
+      padding: var(--space-sm) 0;
+    }
+
+    .sidebar-box h4 {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      margin-bottom: 0;
+    }
+
+    .sidebar-box h4::after {
+      content: "›";
+      font-size: 1.3rem;
+      transform: rotate(90deg);
+      transition: transform 0.2s ease;
+    }
+
+    .sidebar-box.open h4::after {
+      transform: rotate(270deg);
+    }
+
+    .sidebar-box .accordion-content {
+      display: none;
+      margin-top: var(--space-sm);
+    }
+
+    .sidebar-box.open .accordion-content {
+      display: block;
+    }
+  }
+</style>
+
+<script>
+  // Reading progress bar
+  const progressFill = document.getElementById("reading-progress-fill");
+
+  function updateProgress() {
+    const scrollTop = window.scrollY;
+    const docHeight =
+      document.documentElement.scrollHeight - window.innerHeight;
+    const percent = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+    if (progressFill) {
+      progressFill.style.width = `${Math.min(percent, 100)}%`;
+    }
+  }
+
+  // Highlights the current section in the Table of Contents as you scroll
+  function updateActiveToc() {
+    const headings = document.querySelectorAll(".article-body h2[id]");
+    const tocLinks = document.querySelectorAll("#toc-nav a");
+    let currentSlug = "";
+
+    headings.forEach((heading) => {
+      const rect = heading.getBoundingClientRect();
+      if (rect.top < 150) {
+        currentSlug = heading.id;
+      }
+    });
+
+    tocLinks.forEach((link) => {
+      link.classList.toggle(
+        "active",
+        link.getAttribute("data-slug") === currentSlug,
+      );
+    });
+  }
+
+  window.addEventListener("scroll", () => {
+    updateProgress();
+    updateActiveToc();
+  });
+  updateProgress();
+  updateActiveToc();
+
+  // Mobile accordion toggles (Author / Share / Related sidebar boxes)
+  document.querySelectorAll(".sidebar-box").forEach((box) => {
+    const heading = box.querySelector("h4");
+    heading?.addEventListener("click", () => {
+      if (window.innerWidth <= 950) {
+        box.classList.toggle("open");
+      }
+    });
+  });
+
+  // --- Real sharing functionality ---
+  const pageUrl = window.location.href;
+  const pageTitle = document.title;
+
+  const whatsappBtn = document.getElementById("share-whatsapp");
+  if (whatsappBtn) {
+    whatsappBtn.setAttribute(
+      "href",
+      `https://wa.me/?text=${encodeURIComponent(pageTitle + " " + pageUrl)}`,
+    );
+    whatsappBtn.setAttribute("target", "_blank");
+    whatsappBtn.setAttribute("rel", "noopener noreferrer");
+  }
+
+  const facebookBtn = document.getElementById("share-facebook");
+  if (facebookBtn) {
+    facebookBtn.setAttribute(
+      "href",
+      `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(pageUrl)}`,
+    );
+    facebookBtn.setAttribute("target", "_blank");
+    facebookBtn.setAttribute("rel", "noopener noreferrer");
+  }
+
+  const pinterestBtn = document.getElementById("share-pinterest");
+  if (pinterestBtn) {
+    const coverImg = document.querySelector(
+      ".article-cover",
+    ) as HTMLImageElement;
+    const imageUrl = coverImg?.src || "";
+    pinterestBtn.setAttribute(
+      "href",
+      `https://pinterest.com/pin/create/button/?url=${encodeURIComponent(pageUrl)}&media=${encodeURIComponent(imageUrl)}&description=${encodeURIComponent(pageTitle)}`,
+    );
+    pinterestBtn.setAttribute("target", "_blank");
+    pinterestBtn.setAttribute("rel", "noopener noreferrer");
+  }
+
+  const xBtn = document.getElementById("share-x");
+  if (xBtn) {
+    xBtn.setAttribute(
+      "href",
+      `https://twitter.com/intent/tweet?text=${encodeURIComponent(pageTitle)}&url=${encodeURIComponent(pageUrl)}`,
+    );
+    xBtn.setAttribute("target", "_blank");
+    xBtn.setAttribute("rel", "noopener noreferrer");
+  }
+
+  const copyBtn = document.getElementById("share-copy");
+  const copyConfirm = document.getElementById("copy-confirm");
+  copyBtn?.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(pageUrl);
+      copyConfirm?.classList.add("show");
+      setTimeout(() => copyConfirm?.classList.remove("show"), 2000);
+    } catch (err) {
+      console.error("Could not copy link:", err);
+    }
+  });
+
+  // Native share button — only show it if the browser/device actually supports it
+  // (mainly mobile devices; most desktop browsers don't have this).
+  const nativeBtn = document.getElementById("share-native");
+  if (nativeBtn) {
+    if (navigator.share) {
+      nativeBtn.addEventListener("click", () => {
+        navigator.share({ title: pageTitle, url: pageUrl }).catch(() => {});
+      });
+    } else {
+      nativeBtn.style.display = "none";
+    }
+  }
+</script>
+</file>
+
+<file path="src/pages/destinations.astro">
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import ListingHero from "../components/ListingHero.astro";
+import ListingFilterBar from "../components/ListingFilterBar.astro";
+import Card from "../components/Card.astro";
+import ComingSoon from "../components/ComingSoon.astro";
+import { getArticlesBySection, getCardDisplayTags } from "../utils/articles";
+import heroDestinationsImage from "../assets/images/hero-destinations.jpg";
+
+const articles = await getArticlesBySection("Destinations");
+
+// Sort newest-first by default. The client-side script below re-sorts
+// when the visitor changes the Sort dropdown.
+const sortedArticles = [...articles].sort(
+  (a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf(),
+);
+
+const hasArticles = sortedArticles.length > 0;
+---
+
+<BaseLayout title="Destinations — World Travel Picks">
+  <ListingHero
+    eyebrow="Destinations"
+    heading="Explore the World"
+    description="Discover countries, cities, and hidden gems around the globe. Research, plan, and be inspired for your next adventure."
+    imageUrl={heroDestinationsImage}
+    imageAlt="A scenic mountain landscape representing world destinations"
+  />
+
+  <ListingFilterBar />
+
+  <section class="listing-content">
+    {
+      hasArticles ? (
+        <>
+          <p class="listing-count" id="listing-count">
+            Showing {sortedArticles.length} of {sortedArticles.length}{" "}
+            destinations
+          </p>
+
+          <div class="listing-grid" id="listing-grid">
+            {sortedArticles.map((article) => (
+              <div
+                class="listing-card-wrap"
+                data-title={article.data.title.toLowerCase()}
+                data-tags={getCardDisplayTags(article).join(" ").toLowerCase()}
+                data-date={article.data.publishDate.toISOString()}
+              >
+                <Card
+                  image={article.data.coverImage}
+                  tag={getCardDisplayTags(article).join(" · ")}
+                  title={article.data.title}
+                  meta={`${article.data.readTime} · ${article.data.publishDate.toDateString()}`}
+                  href={`/articles/${article.id}`}
+                />
+              </div>
+            ))}
+          </div>
+
+          <p class="no-results-msg" id="no-results-msg" style="display: none;">
+            No destinations match your search.
+          </p>
+        </>
+      ) : (
+        <ComingSoon
+          title="Destinations Coming Soon"
+          message="We're researching amazing destinations for you. Check back soon!"
+        />
+      )
+    }
+  </section>
+</BaseLayout>
+
+<style>
+  .listing-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: var(--space-md);
+  }
+
+  .listing-count {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-sm);
+  }
+
+  .listing-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-sm);
+  }
+
+  .listing-grid.view-list {
+    grid-template-columns: 1fr;
+  }
+
+  .listing-grid.view-list .listing-card-wrap :global(.card) {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+  }
+
+  .listing-grid.view-list .listing-card-wrap :global(.card-image-wrap) {
+    width: 240px;
+    flex-shrink: 0;
+    aspect-ratio: auto;
+  }
+
+  .listing-grid.view-list .listing-card-wrap :global(.card-body) {
+    flex: 1;
+  }
+
+  @media (max-width: 700px) {
+    .listing-grid.view-list .listing-card-wrap :global(.card) {
+      flex-direction: column;
+    }
+    .listing-grid.view-list .listing-card-wrap :global(.card-image-wrap) {
+      width: 100%;
+    }
+  }
+
+  .no-results-msg {
+    text-align: center;
+    color: var(--color-text-muted);
+    padding: var(--space-xl) 0;
+  }
+
+  @media (max-width: 1100px) {
+    .listing-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 600px) {
+    .listing-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  // Listens for the events ListingFilterBar dispatches, and applies
+  // real search filtering + sorting to the cards already rendered above.
+  // (No re-fetching data — we just show/hide and reorder what's there.)
+
+  const grid = document.getElementById("listing-grid");
+  const countLabel = document.getElementById("listing-count");
+  const noResultsMsg = document.getElementById("no-results-msg");
+
+  function getCardWraps(): HTMLElement[] {
+    return grid ? Array.from(grid.querySelectorAll(".listing-card-wrap")) : [];
+  }
+
+  function applySearch(query: string) {
+    const cards = getCardWraps();
+    const lowerQuery = query.toLowerCase().trim();
+    let visibleCount = 0;
+
+    cards.forEach((card) => {
+      const title = card.dataset.title || "";
+      const tags = card.dataset.tags || "";
+      const matches =
+        !lowerQuery || title.includes(lowerQuery) || tags.includes(lowerQuery);
+      card.style.display = matches ? "" : "none";
+      if (matches) visibleCount++;
+    });
+
+    if (countLabel) {
+      countLabel.textContent = `Showing ${visibleCount} of ${cards.length} destinations`;
+    }
+    if (noResultsMsg) {
+      noResultsMsg.style.display = visibleCount === 0 ? "block" : "none";
+    }
+  }
+
+  function applySort(order: string) {
+    if (!grid) return;
+    const cards = getCardWraps();
+    cards.sort((a, b) => {
+      const dateA = new Date(a.dataset.date || "").getTime();
+      const dateB = new Date(b.dataset.date || "").getTime();
+      return order === "oldest" ? dateA - dateB : dateB - dateA;
+    });
+    cards.forEach((card) => grid.appendChild(card));
+  }
+
+  document.addEventListener("listing-search-change", ((e: CustomEvent) => {
+    applySearch(e.detail);
+  }) as EventListener);
+
+  document.addEventListener("listing-sort-change", ((e: CustomEvent) => {
+    applySort(e.detail);
+  }) as EventListener);
+
+  document.addEventListener("listing-region-change", ((e: CustomEvent) => {
+    const region = e.detail.toLowerCase();
+    const cards = getCardWraps();
+    let visibleCount = 0;
+
+    cards.forEach((card) => {
+      const tags = card.dataset.tags || "";
+      const matches = region === "all regions" || tags.includes(region);
+      card.style.display = matches ? "" : "none";
+      if (matches) visibleCount++;
+    });
+
+    if (countLabel) {
+      countLabel.textContent = `Showing ${visibleCount} of ${cards.length} destinations`;
+    }
+    if (noResultsMsg) {
+      noResultsMsg.style.display = visibleCount === 0 ? "block" : "none";
+    }
+  }) as EventListener);
+
+  document.addEventListener("listing-view-change", ((e: CustomEvent) => {
+    grid?.classList.toggle("view-list", e.detail === "list");
+  }) as EventListener);
+</script>
+</file>
+
+<file path="src/pages/guides.astro">
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import ListingHero from "../components/ListingHero.astro";
+import ListingFilterBar from "../components/ListingFilterBar.astro";
+import Card from "../components/Card.astro";
+import ComingSoon from "../components/ComingSoon.astro";
+import { getArticlesBySection, getCardDisplayTags } from "../utils/articles";
+import heroGuidesImage from "../assets/images/hero-guides.jpg";
+
+const articles = await getArticlesBySection("Guides");
+
+const sortedArticles = [...articles].sort(
+  (a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf(),
+);
+
+const hasArticles = sortedArticles.length > 0;
+---
+
+<BaseLayout title="Guides — World Travel Picks">
+  <ListingHero
+    eyebrow="Travel Guides"
+    heading="Travel Guides for Every Journey"
+    description="In-depth travel guides, itineraries, and expert tips to help you explore the world smarter."
+    imageUrl={heroGuidesImage}
+    imageAlt="A traveler consulting a map, representing travel guides"
+  />
+
+  <ListingFilterBar />
+
+  <section class="listing-content">
+    {
+      hasArticles ? (
+        <>
+          <p class="listing-count" id="listing-count">
+            Showing {sortedArticles.length} of {sortedArticles.length} guides
+          </p>
+
+          <div class="listing-grid" id="listing-grid">
+            {sortedArticles.map((article) => (
+              <div
+                class="listing-card-wrap"
+                data-title={article.data.title.toLowerCase()}
+                data-tags={getCardDisplayTags(article).join(" ").toLowerCase()}
+                data-date={article.data.publishDate.toISOString()}
+              >
+                <Card
+                  image={article.data.coverImage}
+                  tag={getCardDisplayTags(article).join(" · ")}
+                  title={article.data.title}
+                  meta={`${article.data.readTime} · ${article.data.publishDate.toDateString()}`}
+                  href={`/articles/${article.id}`}
+                />
+              </div>
+            ))}
+          </div>
+
+          <p class="no-results-msg" id="no-results-msg" style="display: none;">
+            No guides match your search.
+          </p>
+        </>
+      ) : (
+        <ComingSoon
+          title="Guides Coming Soon"
+          message="We're preparing in-depth travel guides for every destination. Check back soon!"
+        />
+      )
+    }
+  </section>
+</BaseLayout>
+
+<style>
+  .listing-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: var(--space-md);
+  }
+
+  .listing-count {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-sm);
+  }
+
+  .listing-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-sm);
+  }
+
+  .listing-grid.view-list {
+    grid-template-columns: 1fr;
+  }
+
+  .listing-grid.view-list .listing-card-wrap :global(.card) {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+  }
+
+  .listing-grid.view-list .listing-card-wrap :global(.card-image-wrap) {
+    width: 240px;
+    flex-shrink: 0;
+    aspect-ratio: auto;
+  }
+
+  .listing-grid.view-list .listing-card-wrap :global(.card-body) {
+    flex: 1;
+  }
+
+  @media (max-width: 700px) {
+    .listing-grid.view-list .listing-card-wrap :global(.card) {
+      flex-direction: column;
+    }
+    .listing-grid.view-list .listing-card-wrap :global(.card-image-wrap) {
+      width: 100%;
+    }
+  }
+
+  .no-results-msg {
+    text-align: center;
+    color: var(--color-text-muted);
+    padding: var(--space-xl) 0;
+  }
+
+  @media (max-width: 1100px) {
+    .listing-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 600px) {
+    .listing-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  const grid = document.getElementById("listing-grid");
+  const countLabel = document.getElementById("listing-count");
+  const noResultsMsg = document.getElementById("no-results-msg");
+
+  function getCardWraps(): HTMLElement[] {
+    return grid ? Array.from(grid.querySelectorAll(".listing-card-wrap")) : [];
+  }
+
+  function updateCount(visibleCount: number, total: number) {
+    if (countLabel) {
+      countLabel.textContent = `Showing ${visibleCount} of ${total} guides`;
+    }
+    if (noResultsMsg) {
+      noResultsMsg.style.display = visibleCount === 0 ? "block" : "none";
+    }
+  }
+
+  function applySearch(query: string) {
+    const cards = getCardWraps();
+    const lowerQuery = query.toLowerCase().trim();
+    let visibleCount = 0;
+
+    cards.forEach((card) => {
+      const title = card.dataset.title || "";
+      const tags = card.dataset.tags || "";
+      const matches =
+        !lowerQuery || title.includes(lowerQuery) || tags.includes(lowerQuery);
+      card.style.display = matches ? "" : "none";
+      if (matches) visibleCount++;
+    });
+
+    updateCount(visibleCount, cards.length);
+  }
+
+  function applySort(order: string) {
+    if (!grid) return;
+    const cards = getCardWraps();
+    cards.sort((a, b) => {
+      const dateA = new Date(a.dataset.date || "").getTime();
+      const dateB = new Date(b.dataset.date || "").getTime();
+      return order === "oldest" ? dateA - dateB : dateB - dateA;
+    });
+    cards.forEach((card) => grid.appendChild(card));
+  }
+
+  function applyRegion(region: string) {
+    const lowerRegion = region.toLowerCase();
+    const cards = getCardWraps();
+    let visibleCount = 0;
+
+    cards.forEach((card) => {
+      const tags = card.dataset.tags || "";
+      const matches =
+        lowerRegion === "all regions" || tags.includes(lowerRegion);
+      card.style.display = matches ? "" : "none";
+      if (matches) visibleCount++;
+    });
+
+    updateCount(visibleCount, cards.length);
+  }
+
+  document.addEventListener("listing-search-change", ((e: CustomEvent) => {
+    applySearch(e.detail);
+  }) as EventListener);
+
+  document.addEventListener("listing-sort-change", ((e: CustomEvent) => {
+    applySort(e.detail);
+  }) as EventListener);
+
+  document.addEventListener("listing-region-change", ((e: CustomEvent) => {
+    applyRegion(e.detail);
+  }) as EventListener);
+
+  document.addEventListener("listing-view-change", ((e: CustomEvent) => {
+    grid?.classList.toggle("view-list", e.detail === "list");
+  }) as EventListener);
+</script>
+</file>
+
+<file path="src/content.config.ts">
+import { defineCollection, z } from 'astro:content';
+import { glob } from 'astro/loaders';
+
+// TAG RULES (locked):
+// - tags[0] = section: "Destinations" | "Guides" | "Books" — decides
+//   which listing page / homepage row the article appears under.
+// - tags[1] = always shown on the card, in every section.
+// - tags[2] = shown on the card ONLY for Destinations and Guides
+//   (ignored on Books cards).
+// - ALL tags (any length) are matched against in global search.
+// - Search results page shows tags[0] on the card too, everywhere else
+//   tags[0] is hidden.
+
+const articles = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/articles' }),
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    coverImage: z.string(),
+    author: z.string().default('World Travel Picks'),
+    publishDate: z.date(),
+    readTime: z.string(),
+    tags: z.array(z.string()).min(2),
+    draft: z.boolean().default(false),
+    // Optional per-article Quick Facts box. Entirely optional — if an
+    // article doesn't include this, the box simply doesn't render.
+    // Whoever writes the article decides if/what to fill in.
+    quickFacts: z.object({
+      bestTimeToVisit: z.string().optional(),
+      language: z.string().optional(),
+      currency: z.string().optional(),
+      timeZone: z.string().optional(),
+    }).optional(),
+  }),
+});
+
+const pages = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/pages' }),
+  schema: z.object({
+    title: z.string(),
+    description: z.string().optional(),
+    draft: z.boolean().default(false),
+  }),
+});
+
+export const collections = {
+  articles,
+  pages,
+};
+</file>
+
+<file path="src/components/Header.astro">
+---
+// Site-wide header. Used inside BaseLayout so every page gets the same nav.
+
+const kdpStoreUrl = ""; // TODO: paste your KDP/Amazon store URL here once published
+---
+
+<header class="site-header">
+  <div class="header-inner">
+    <button
+      class="icon-btn mobile-only mobile-menu-trigger"
+      aria-label="Open menu"
+      id="mobile-menu-btn-left"
+    >
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <path
+          d="M2 5H18M2 10H18M2 15H18"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"></path>
+      </svg>
+    </button>
+
+    <a href="/" class="logo">
+      <span class="logo-text logo-text-full">World Travel Picks</span>
+      <span class="logo-text logo-text-short">W-T-P</span>
+    </a>
+
+    <nav class="main-nav">
+      <a href="/" class="active">Home</a>
+
+      <div class="nav-dropdown" data-dropdown="categories">
+        <button class="nav-dropdown-trigger" aria-expanded="false">
+          Categories
+          <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
+            <path
+              d="M1 1L5 5L9 1"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"></path>
+          </svg>
+        </button>
+        <div class="nav-dropdown-menu">
+          <a href="/destinations">Destinations</a>
+          <a href="/guides">Guides</a>
+          <a href="/books">Books</a>
+        </div>
+      </div>
+
+      <a
+        href={kdpStoreUrl || "#"}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="kdp-link"
+      >
+        KDP Store
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <path
+            d="M3.5 8.5L8.5 3.5M8.5 3.5H4.5M8.5 3.5V7.5"
+            stroke="currentColor"
+            stroke-width="1.3"
+            stroke-linecap="round"
+            stroke-linejoin="round"></path>
+        </svg>
+      </a>
+
+      <a href="/about-us">About Us</a>
+      <a href="/contact-us">Contact</a>
+    </nav>
+
+    <div class="header-actions">
+      <div class="header-search-wrap" id="header-search-wrap">
+        <button class="icon-btn" aria-label="Search" id="header-search-btn">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"
+            ></circle>
+            <path
+              d="M16 16L12.5 12.5"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"></path>
+          </svg>
+        </button>
+
+        <div class="header-search-field" id="header-search-field">
+          <svg width="16" height="16" viewBox="0 0 18 18" fill="none">
+            <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"
+            ></circle>
+            <path
+              d="M16 16L12.5 12.5"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"></path>
+          </svg>
+          <input
+            type="text"
+            id="header-search-input"
+            placeholder="Search destinations, countries & travel guides..."
+            autocomplete="off"
+          />
+          <button
+            id="header-search-close"
+            aria-label="Close search"
+            type="button"
+          >
+            <svg width="16" height="16" viewBox="0 0 18 18" fill="none">
+              <path
+                d="M4 4L14 14M14 4L4 14"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <button
+        class="theme-toggle"
+        id="theme-toggle-btn"
+        aria-label="Toggle dark mode"
+      >
+        <span class="theme-toggle-track">
+          <span class="theme-toggle-thumb"></span>
+        </span>
+      </button>
+    </div>
+  </div>
+
+  <div class="mobile-drawer-overlay" id="mobile-drawer-overlay"></div>
+
+  <div class="mobile-drawer" id="mobile-drawer">
+    <div class="mobile-drawer-header">
+      <span class="logo-text">World Travel Picks</span>
+      <button class="icon-btn" id="mobile-drawer-close" aria-label="Close menu">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path
+            d="M4 4L16 16M16 4L4 16"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"></path>
+        </svg>
+      </button>
+    </div>
+
+    <nav class="mobile-drawer-nav">
+      <a href="/">Home</a>
+
+      <div class="mobile-accordion">
+        <button class="mobile-accordion-trigger">
+          Categories
+          <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
+            <path
+              d="M1 1L5 5L9 1"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"></path>
+          </svg>
+        </button>
+        <div class="mobile-accordion-content">
+          <a href="/destinations">Destinations</a>
+          <a href="/guides">Guides</a>
+          <a href="/books">Books</a>
+        </div>
+      </div>
+
+      <a href={kdpStoreUrl || "#"} target="_blank" rel="noopener noreferrer"
+        >KDP Store ↗</a
+      >
+      <a href="/about-us">About Us</a>
+      <a href="/contact-us">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    background-color: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
+  .header-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: var(--space-sm) var(--space-md);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    flex-shrink: 0;
+  }
+
+  .logo-text {
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: 0.02em;
+    color: var(--color-text-strong);
+    text-transform: uppercase;
+  }
+
+  .logo-text-short {
+    display: none;
+  }
+
+  .mobile-menu-trigger {
+    display: none;
+  }
+
+  .main-nav {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  .main-nav > a {
+    color: var(--color-text);
+    opacity: 0.85;
+    transition: opacity 0.15s ease;
+  }
+
+  .main-nav > a.active {
+    opacity: 1;
+    border-bottom: 2px solid var(--color-accent);
+    padding-bottom: 2px;
+  }
+
+  .main-nav > a:hover {
+    opacity: 1;
+  }
+
+  .kdp-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  .nav-dropdown {
+    position: relative;
+  }
+
+  .nav-dropdown-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: none;
+    border: none;
+    color: var(--color-text);
+    opacity: 0.85;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 0;
+  }
+
+  .nav-dropdown-trigger:hover {
+    opacity: 1;
+  }
+
+  .nav-dropdown-menu {
+    position: absolute;
+    top: calc(100% + var(--space-sm));
+    left: 0;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    min-width: 180px;
+    padding: var(--space-xs);
+    display: none;
+    flex-direction: column;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  }
+
+  .nav-dropdown.open .nav-dropdown-menu {
+    display: flex;
+  }
+
+  .nav-dropdown-menu a {
+    color: var(--color-text);
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius-sm);
+    opacity: 1;
+  }
+
+  .nav-dropdown-menu a:hover {
+    background-color: var(--color-surface-secondary);
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+
+  .header-search-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .header-search-field {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    align-items: center;
+    gap: 0.5rem;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    padding: 0.5rem 0.9rem;
+    width: 320px;
+    max-width: 60vw;
+    z-index: 60;
+    color: var(--color-text-muted);
+  }
+
+  .header-search-field.open {
+    display: flex;
+  }
+
+  .header-search-field input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: none;
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    color: var(--color-text);
+  }
+
+  #header-search-close {
+    background: none;
+    border: none;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    display: flex;
+  }
+
+  .header-search-wrap.open .icon-btn {
+    display: none;
+  }
+
+  .icon-btn {
+    background: none;
+    border: none;
+    color: var(--color-text);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.25rem;
+  }
+
+  .theme-toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+  }
+
+  .theme-toggle-track {
+    display: block;
+    width: 38px;
+    height: 20px;
+    background-color: var(--color-surface-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    position: relative;
+    transition: background-color 0.2s ease;
+  }
+
+  .theme-toggle-thumb {
+    position: absolute;
+    top: 1px;
+    left: 1px;
+    width: 16px;
+    height: 16px;
+    background-color: var(--color-button-bg);
+    border-radius: 50%;
+    transition: transform 0.2s ease;
+  }
+
+  :root[data-theme="dark"] .theme-toggle-thumb {
+    transform: translateX(18px);
+  }
+
+  .mobile-only {
+    display: none;
+  }
+
+  @media (max-width: 950px) {
+    .main-nav {
+      display: none;
+    }
+    .mobile-menu-trigger {
+      display: flex;
+    }
+    .logo-text-full {
+      display: none;
+    }
+    .logo-text-short {
+      display: inline;
+    }
+  }
+
+  /* --- Mobile drawer --- */
+  .mobile-drawer-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 90;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+
+  .mobile-drawer-overlay.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .mobile-drawer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 300px;
+    max-width: 85vw;
+    background-color: var(--color-surface);
+    z-index: 100;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .mobile-drawer.open {
+    transform: translateX(0);
+  }
+
+  .mobile-drawer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-sm) var(--space-md);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .mobile-drawer-header .logo-text {
+    color: var(--color-text-strong);
+  }
+
+  .mobile-drawer-nav {
+    display: flex;
+    flex-direction: column;
+    padding: var(--space-sm) var(--space-md);
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+  }
+
+  .mobile-drawer-nav > a {
+    color: var(--color-text);
+    padding: var(--space-xs) 0;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .mobile-accordion {
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .mobile-accordion-trigger {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: none;
+    border: none;
+    color: var(--color-text);
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    padding: var(--space-xs) 0;
+    cursor: pointer;
+  }
+
+  .mobile-accordion-trigger svg {
+    transition: transform 0.2s ease;
+  }
+
+  .mobile-accordion.open .mobile-accordion-trigger svg {
+    transform: rotate(180deg);
+  }
+
+  .mobile-accordion-content {
+    display: none;
+    flex-direction: column;
+    padding-left: var(--space-sm);
+    padding-bottom: var(--space-xs);
+  }
+
+  .mobile-accordion.open .mobile-accordion-content {
+    display: flex;
+  }
+
+  .mobile-accordion-content a {
+    color: var(--color-text-muted);
+    padding: 0.4rem 0;
+  }
+</style>
+
+<script>
+  // Dropdown toggles (works for both Books and Categories independently)
+  const dropdowns = document.querySelectorAll(".nav-dropdown");
+
+  dropdowns.forEach((dropdown) => {
+    const trigger = dropdown.querySelector(".nav-dropdown-trigger");
+    trigger?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const isCurrentlyOpen = dropdown.classList.contains("open");
+      dropdowns.forEach((d) => {
+        d.classList.remove("open");
+        d.querySelector(".nav-dropdown-trigger")?.setAttribute(
+          "aria-expanded",
+          "false",
+        );
+      });
+      if (!isCurrentlyOpen) {
+        dropdown.classList.add("open");
+        trigger.setAttribute("aria-expanded", "true");
+      }
+    });
+  });
+
+  document.addEventListener("click", () => {
+    dropdowns.forEach((d) => {
+      d.classList.remove("open");
+      d.querySelector(".nav-dropdown-trigger")?.setAttribute(
+        "aria-expanded",
+        "false",
+      );
+    });
+  });
+
+  // Theme toggle button
+  const themeBtn = document.getElementById("theme-toggle-btn");
+  themeBtn?.addEventListener("click", () => {
+    const current = document.documentElement.getAttribute("data-theme");
+    const next = current === "dark" ? "light" : "dark";
+    (window as any).setWtpTheme(next);
+  });
+
+  // Header search: click icon → reveal input field → live results panel
+  const searchWrap = document.getElementById("header-search-wrap");
+  const searchBtn = document.getElementById("header-search-btn");
+  const searchField = document.getElementById("header-search-field");
+  const searchInput = document.getElementById(
+    "header-search-input",
+  ) as HTMLInputElement;
+  const searchCloseBtn = document.getElementById("header-search-close");
+
+  function openHeaderSearch() {
+    searchWrap?.classList.add("open");
+    searchField?.classList.add("open");
+    setTimeout(() => searchInput?.focus(), 50);
+  }
+
+  function closeHeaderSearch() {
+    searchWrap?.classList.remove("open");
+    searchField?.classList.remove("open");
+    if (searchInput) searchInput.value = "";
+    (window as any).__searchPanel?.closePanel();
+  }
+
+  searchBtn?.addEventListener("click", openHeaderSearch);
+  searchCloseBtn?.addEventListener("click", closeHeaderSearch);
+
+  searchInput?.addEventListener("input", () => {
+    const query = searchInput.value;
+    if (query.trim()) {
+      (window as any).__searchPanel?.openPanel();
+      (window as any).__searchPanel?.renderResults(query);
+    } else {
+      (window as any).__searchPanel?.closePanel();
+    }
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && searchField?.classList.contains("open")) {
+      closeHeaderSearch();
+    }
+  });
+
+  // Mobile drawer open/close
+  const drawer = document.getElementById("mobile-drawer");
+  const overlay = document.getElementById("mobile-drawer-overlay");
+  const openBtn = document.getElementById("mobile-menu-btn-left");
+  const closeBtn = document.getElementById("mobile-drawer-close");
+
+  function openDrawer() {
+    drawer?.classList.add("open");
+    overlay?.classList.add("open");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeDrawer() {
+    drawer?.classList.remove("open");
+    overlay?.classList.remove("open");
+    document.body.style.overflow = "";
+  }
+
+  openBtn?.addEventListener("click", openDrawer);
+  closeBtn?.addEventListener("click", closeDrawer);
+  overlay?.addEventListener("click", closeDrawer);
+
+  // Mobile accordions (Books / Categories expand inline)
+  document.querySelectorAll(".mobile-accordion-trigger").forEach((trigger) => {
+    trigger.addEventListener("click", () => {
+      trigger.parentElement?.classList.toggle("open");
+    });
+  });
+</script>
+</file>
+
+<file path="src/content/articles/japan-10-places.md">
+---
+title: "10 Incredible Places to Visit in Japan"
+description: "Beyond Tokyo and Kyoto, Japan is full of breathtaking places that most travelers miss."
+coverImage: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=800"
+author: "World Travel Picks"
+publishDate: 2026-05-24
+readTime: "8 min read"
+tags: ["Destinations", "Asia", "Japan"]
+quickFacts:
+  bestTimeToVisit: "Mar – May, Sep – Nov"
+  language: "Japanese"
+  currency: "Japanese Yen (¥)"
+  timeZone: "UTC +9 (JST)"
+---
+
+Japan is a country where tradition and modernity coexist beautifully. Whether you're a first-time visitor or a returning traveler, these incredible destinations will leave you amazed.
+
+## Tokyo – The Modern Metropolis
+
+Tokyo, the capital of Japan, is a vibrant city blending cutting-edge technology with rich culture. From the neon lights of Shibuya to the historic Senso-ji Temple, Tokyo has something for everyone.
+
+## Kyoto – The Cultural Heart
+
+Kyoto is famous for its well-preserved temples, traditional tea houses, and beautiful geisha districts. It's the perfect place to experience the timeless beauty of Japan.
+
+## Hakone – Nature & Relaxation
+
+Just a short trip from Tokyo, Hakone is known for its hot springs, stunning views of Mount Fuji, and peaceful lakes.
+</file>
+
+<file path="src/pages/books.astro">
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import ListingHero from "../components/ListingHero.astro";
+import ListingFilterBar from "../components/ListingFilterBar.astro";
+import Card from "../components/Card.astro";
+import ComingSoon from "../components/ComingSoon.astro";
+import { getArticlesBySection, getCardDisplayTags } from "../utils/articles";
+import heroBooksImage from "../assets/images/hero-books.jpg";
+
+const articles = await getArticlesBySection("Books");
+
+const sortedArticles = [...articles].sort(
+  (a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf(),
+);
+
+const hasArticles = sortedArticles.length > 0;
+---
+
+<BaseLayout title="Books — World Travel Picks">
+  <ListingHero
+    eyebrow="Travel Books"
+    heading="Books for Every Explorer"
+    description="Curated travel books, inspiring stories, and practical guides to fuel your wanderlust and deepen your journeys."
+    imageUrl={heroBooksImage}
+    imageAlt="A stack of travel books, representing books for explorers"
+  />
+
+  <ListingFilterBar showSeries={true} />
+
+  <section class="listing-content">
+    {
+      hasArticles ? (
+        <>
+          <p class="listing-count" id="listing-count">
+            Showing {sortedArticles.length} of {sortedArticles.length} books
+          </p>
+
+          <div class="listing-grid" id="listing-grid">
+            {sortedArticles.map((article) => (
+              <div
+                class="listing-card-wrap"
+                data-title={article.data.title.toLowerCase()}
+                data-tags={getCardDisplayTags(article).join(" ").toLowerCase()}
+                data-date={article.data.publishDate.toISOString()}
+              >
+                <Card
+                  image={article.data.coverImage}
+                  tag={getCardDisplayTags(article).join(" · ")}
+                  title={article.data.title}
+                  meta={`${article.data.readTime} · ${article.data.publishDate.toDateString()}`}
+                  href={`/articles/${article.id}`}
+                />
+              </div>
+            ))}
+          </div>
+
+          <p class="no-results-msg" id="no-results-msg" style="display: none;">
+            No books match your search.
+          </p>
+        </>
+      ) : (
+        <ComingSoon
+          title="Books Coming Soon"
+          message="We're preparing exciting travel books for young explorers and adventurers alike. Check back soon!"
+        />
+      )
+    }
+  </section>
+</BaseLayout>
+
+<style>
+  .listing-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: var(--space-md);
+  }
+
+  .listing-count {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-sm);
+  }
+
+  .listing-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-sm);
+  }
+
+  .listing-grid.view-list {
+    grid-template-columns: 1fr;
+  }
+
+  .listing-grid.view-list .listing-card-wrap :global(.card) {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+  }
+
+  .listing-grid.view-list .listing-card-wrap :global(.card-image-wrap) {
+    width: 240px;
+    flex-shrink: 0;
+    aspect-ratio: auto;
+  }
+
+  .listing-grid.view-list .listing-card-wrap :global(.card-body) {
+    flex: 1;
+  }
+
+  @media (max-width: 700px) {
+    .listing-grid.view-list .listing-card-wrap :global(.card) {
+      flex-direction: column;
+    }
+    .listing-grid.view-list .listing-card-wrap :global(.card-image-wrap) {
+      width: 100%;
+    }
+  }
+
+  .no-results-msg {
+    text-align: center;
+    color: var(--color-text-muted);
+    padding: var(--space-xl) 0;
+  }
+
+  @media (max-width: 1100px) {
+    .listing-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 600px) {
+    .listing-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  const grid = document.getElementById("listing-grid");
+  const countLabel = document.getElementById("listing-count");
+  const noResultsMsg = document.getElementById("no-results-msg");
+
+  function getCardWraps(): HTMLElement[] {
+    return grid ? Array.from(grid.querySelectorAll(".listing-card-wrap")) : [];
+  }
+
+  function updateCount(visibleCount: number, total: number) {
+    if (countLabel) {
+      countLabel.textContent = `Showing ${visibleCount} of ${total} books`;
+    }
+    if (noResultsMsg) {
+      noResultsMsg.style.display = visibleCount === 0 ? "block" : "none";
+    }
+  }
+
+  function applySearch(query: string) {
+    const cards = getCardWraps();
+    const lowerQuery = query.toLowerCase().trim();
+    let visibleCount = 0;
+
+    cards.forEach((card) => {
+      const title = card.dataset.title || "";
+      const tags = card.dataset.tags || "";
+      const matches =
+        !lowerQuery || title.includes(lowerQuery) || tags.includes(lowerQuery);
+      card.style.display = matches ? "" : "none";
+      if (matches) visibleCount++;
+    });
+
+    updateCount(visibleCount, cards.length);
+  }
+
+  function applySort(order: string) {
+    if (!grid) return;
+    const cards = getCardWraps();
+    cards.sort((a, b) => {
+      const dateA = new Date(a.dataset.date || "").getTime();
+      const dateB = new Date(b.dataset.date || "").getTime();
+      return order === "oldest" ? dateA - dateB : dateB - dateA;
+    });
+    cards.forEach((card) => grid.appendChild(card));
+  }
+
+  function applyRegion(region: string) {
+    const lowerRegion = region.toLowerCase();
+    const cards = getCardWraps();
+    let visibleCount = 0;
+
+    cards.forEach((card) => {
+      const tags = card.dataset.tags || "";
+      const matches =
+        lowerRegion === "all regions" || tags.includes(lowerRegion);
+      card.style.display = matches ? "" : "none";
+      if (matches) visibleCount++;
+    });
+
+    updateCount(visibleCount, cards.length);
+  }
+
+  document.addEventListener("listing-search-change", ((e: CustomEvent) => {
+    applySearch(e.detail);
+  }) as EventListener);
+
+  document.addEventListener("listing-sort-change", ((e: CustomEvent) => {
+    applySort(e.detail);
+  }) as EventListener);
+
+  document.addEventListener("listing-region-change", ((e: CustomEvent) => {
+    applyRegion(e.detail);
+  }) as EventListener);
+
+  document.addEventListener("listing-series-change", ((e: CustomEvent) => {
+    const series = e.detail.toLowerCase();
+    const cards = getCardWraps();
+    let visibleCount = 0;
+
+    cards.forEach((card) => {
+      const tags = card.dataset.tags || "";
+      const matches = series === "all series" || tags.includes(series);
+      card.style.display = matches ? "" : "none";
+      if (matches) visibleCount++;
+    });
+
+    updateCount(visibleCount, cards.length);
+  }) as EventListener);
+
+  document.addEventListener("listing-view-change", ((e: CustomEvent) => {
+    grid?.classList.toggle("view-list", e.detail === "list");
+  }) as EventListener);
+</script>
+</file>
+
+<file path="src/styles/global.css">
+/* ==========================================================================
+   WORLD TRAVEL PICKS — GLOBAL DESIGN SYSTEM
+   This file is the single source of truth for colors, fonts, and spacing.
+   Every other file references these variables instead of hardcoding values.
+   ========================================================================== */
+
+/* --- Fonts (loaded from Google Fonts) --- */
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Inter:wght@400;500;600;700&family=Caveat:wght@500;600&display=swap');
+
+:root {
+  /* --- Colors (Light theme) --- */
+  --color-bg: #F5F5F5;
+  --color-bg-dark: #141515;
+  --color-surface: #FAFAF5;
+  --color-surface-secondary: #F0F0EB;
+
+  --color-text: #20211F;
+  --color-text-strong: #141515;
+  --color-text-muted: #89867D;
+  --color-text-on-dark: #F5F2EB;
+
+  --color-button-bg: #596354;
+  --color-button-text: #FFFFFF;
+  --color-button-hover: #3F473C;
+
+  --color-accent: #CBB995;
+  --color-border: #D8D8D2;
+
+  /* --- Fonts --- */
+  --font-heading: 'Fraunces', Georgia, serif;
+  --font-body: 'Inter', -apple-system, sans-serif;
+  --font-accent: 'Caveat', cursive;
+
+  /* --- Spacing scale --- */
+  --space-xs: 0.5rem;
+  --space-sm: 1rem;
+  --space-md: 1.5rem;
+  --space-lg: 2.5rem;
+  --space-xl: 4rem;
+  --space-2xl: 6rem;
+
+  /* --- Radius --- */
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+}
+
+/* --- Dark mode overrides --- */
+:root[data-theme="dark"] {
+  --color-bg: #141515;
+  --color-bg-dark: #0A0B0B;
+  --color-surface: #20211F;
+  --color-surface-secondary: #1B1C1B;
+
+  --color-text: #F5F2EB;
+  --color-text-strong: #FFFFFF;
+  --color-text-muted: #89867D;
+  --color-text-on-dark: #F5F2EB;
+
+  --color-button-bg: #596354;
+  --color-button-text: #FFFFFF;
+  --color-button-hover: #3F473C;
+
+  --color-accent: #CBB995;
+  --color-border: #343532;
+}
+
+/* Smooth transition when switching themes */
+body {
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* --- Reset basics --- */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  line-height: 1.15;
+  margin: 0 0 var(--space-sm) 0;
+  color: var(--color-text);
+}
+
+p {
+  margin: 0 0 var(--space-sm) 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+/* --- Utility: visually-hidden (for accessibility labels) --- */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+
+/* ==========================================================================
+   BUTTONS
+   ========================================================================== */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: opacity 0.15s ease, background-color 0.15s ease;
+  text-decoration: none;
+}
+
+.btn-solid {
+  background-color: var(--color-button-bg);
+  color: var(--color-button-text);
+}
+
+.btn-solid:hover {
+  opacity: 0.85;
+}
+
+.btn-outline {
+  background-color: transparent;
+  color: var(--color-text);
+  border-color: var(--color-text);
+}
+
+.btn-outline:hover {
+  background-color: var(--color-text);
+  color: var(--color-button-text);
+}
+
+.btn-sm {
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+}
+</file>
+
+<file path="src/layouts/BaseLayout.astro">
+---
+// This layout wraps every page on the site.
+// It defines the shared <head>, favicon, fonts, and global styles.
+
+import "../styles/global.css";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import SearchOverlay from "../components/SearchOverlay.astro";
+
+const {
+  title = "World Travel Picks",
+  description = "Discover the World Differently",
+  image = "/favicon.png",
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <meta name="description" content={description} />
+
+    <!-- Open Graph tags — control how this page looks when shared on
+         Facebook, WhatsApp, X, Discord, iMessage, etc. -->
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={image} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={Astro.url.href} />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={image} />
+    <title>{title}</title>
+  </head>
+  <body>
+    <script is:inline>
+      // Runs immediately, before page paint, to avoid a flash of wrong theme.
+      const savedTheme = localStorage.getItem("wtp-theme");
+      const prefersDark = window.matchMedia(
+        "(prefers-color-scheme: dark)",
+      ).matches;
+      const theme = savedTheme || (prefersDark ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+
+      // Makes the toggle button (built in Phase 2) able to call this
+      // and have the choice remembered across refreshes.
+      window.setWtpTheme = function (newTheme) {
+        document.documentElement.setAttribute("data-theme", newTheme);
+        localStorage.setItem("wtp-theme", newTheme);
+      };
+    </script>
+    <Header />
+    <slot />
+    <Footer />
+    <SearchOverlay />
+  </body>
+</html>
+</file>
+
+<file path="src/pages/index.astro">
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Hero from "../components/Hero.astro";
+import FeatureStrip from "../components/FeatureStrip.astro";
+import HomeFeaturedRow from "../components/HomeFeaturedRow.astro";
+import CardRow from "../components/CardRow.astro";
+import { getArticlesBySection, getCardDisplayTags } from "../utils/articles";
+
+const destinationArticles = await getArticlesBySection("Destinations");
+const booksArticles = await getArticlesBySection("Books");
+import ExploreWorld from "../components/ExploreWorld.astro";
+import heroHomeImage from "../assets/images/hero-home.jpg";
+---
+
+<BaseLayout title="World Travel Picks — Discover the World Differently">
+  <main>
+    <Hero
+      imageUrl={heroHomeImage}
+      imageAlt="A traveler looking out over mountains and a lake at sunrise"
+    />
+    <FeatureStrip />
+    <HomeFeaturedRow />
+
+    <CardRow
+      heading="Destinations"
+      viewAllHref="/destinations"
+      items={destinationArticles.map((article) => ({
+        image: article.data.coverImage,
+        tag: getCardDisplayTags(article).join(" · "),
+        title: article.data.title,
+        meta: `${article.data.readTime} · ${article.data.publishDate.toDateString()}`,
+        href: `/articles/${article.id}`,
+      }))}
+    />
+
+    <CardRow
+      heading="KDP Books Articles"
+      viewAllHref="/books"
+      items={booksArticles.map((article) => ({
+        image: article.data.coverImage,
+        tag: getCardDisplayTags(article).join(" · "),
+        title: article.data.title,
+        meta: `${article.data.readTime} · ${article.data.publishDate.toDateString()}`,
+        href: `/articles/${article.id}`,
+      }))}
+    />
+
+    <ExploreWorld />
+  </main>
+</BaseLayout>
+</file>
+
+</files>
